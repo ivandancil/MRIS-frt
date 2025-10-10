@@ -68,26 +68,49 @@ const Title = () => {
       >
 
     <Box sx={{ /* Your existing Box styles, if any, can go here */ }}>
+    
+    
       <Typography 
         variant="h3"
-               component="p" 
-                 sx={{ 
-                   fontStyle: 'italic', 
-                   fontFamily: "Poppins",
-                   color: 'white', 
-                   lineHeight: 1.2,  
-                   textShadow: "3px 2px 6px rgba(0, 0, 0, 0.8), 0px 0px 12px rgba(0, 0, 0, 0.2)", 
-                   mb: 0.5,
-                     fontSize: {
-                     xs: ".9rem", 
-                     sm: "1.4rem",
-                     md: "2.5rem",  
-                   
-                   },  
-                      whiteSpace: 'nowrap', 
-                 }}
-               >
-          EMPLOYEE RECORD MANAGEMENT SYSTEM
+        component="p" 
+          sx={{ 
+            fontStyle: 'italic',
+            fontFamily: "Poppins", 
+            color: 'white',
+            lineHeight: 1.2,  
+            textShadow: "3px 2px 6px rgba(0, 0, 0, 0.8), 0px 0px 12px rgba(0, 0, 0, 0.2)", 
+            mb: 0.5,
+              fontSize: {
+              xs: ".9rem", 
+              sm: "1.4rem",
+              md: "2.4rem",  
+              
+            },  
+               whiteSpace: 'nowrap', // Keeps it on one line 
+          }}
+        >
+         RECORDS AND INVENTORY SYSTEM
+      </Typography>
+         <Typography 
+        variant="h3"
+        component="p" 
+          sx={{ 
+            fontStyle: 'italic',
+            fontFamily: "Poppins", 
+            color: 'white',
+            lineHeight: 1.2,  
+            textShadow: "3px 2px 6px rgba(0, 0, 0, 0.8), 0px 0px 12px rgba(0, 0, 0, 0.2)", 
+            mb: 0.5,
+              fontSize: {
+              xs: ".9rem", 
+              sm: "1.4rem",
+              md: "2.4rem",  
+              
+            },  
+               whiteSpace: 'nowrap', // Keeps it on one line 
+          }}
+        >
+         MOTORPOOL
       </Typography>
       <Typography 
         variant="h3"
@@ -108,49 +131,7 @@ const Title = () => {
                whiteSpace: 'nowrap', // Keeps it on one line 
           }}
         >
-          WITH OPTICAL CHARACTER RECOGNITION
-      </Typography>
-      <Typography 
-        variant="h3"
-        component="p" 
-          sx={{ 
-            fontStyle: 'italic',
-            fontFamily: "Poppins", 
-            color: 'white',
-            lineHeight: 1.2,  
-            textShadow: "3px 2px 6px rgba(0, 0, 0, 0.8), 0px 0px 12px rgba(0, 0, 0, 0.2)", 
-            mb: 0.5,
-              fontSize: {
-              xs: ".9rem", 
-              sm: "1.4rem",
-              md: "2.4rem",  
-              
-            },  
-               whiteSpace: 'nowrap', // Keeps it on one line 
-          }}
-        >
-          IN DEPARTMENT OF EDUCATION
-      </Typography>
-      <Typography 
-        variant="h3"
-        component="p" 
-          sx={{ 
-            fontStyle: 'italic',
-            fontFamily: "Poppins", 
-            color: 'white',
-            lineHeight: 1.2,  
-            textShadow: "3px 2px 6px rgba(0, 0, 0, 0.8), 0px 0px 12px rgba(0, 0, 0, 0.2)", 
-            mb: 0.5,
-              fontSize: {
-              xs: ".9rem", 
-              sm: "1.4rem",
-              md: "2.4rem",  
-              
-            },  
-               whiteSpace: 'nowrap', // Keeps it on one line 
-          }}
-        >
-          TACLOBAN CITY DIVISION
+         (RITEMEAT-WAREHOUSE)
       </Typography>
       
           </Box>

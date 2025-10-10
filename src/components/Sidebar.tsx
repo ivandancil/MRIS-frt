@@ -163,7 +163,7 @@ function Sidebar({ role, isCollapsed, toggleSidebar }: SidebarProps) {
                   color={colors.grey[100]}
                   sx={{ fontSize: { xs: ".8rem", sm: "1rem",md: "1.1rem" },fontWeight: "600" }}
                 >
-                  DepedTac
+                  RM_Motorpol
                 </Typography>
               <img
                 src={ DepedLogo }
