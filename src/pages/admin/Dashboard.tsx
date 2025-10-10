@@ -93,7 +93,7 @@ const Dashboard = () => {
   const overviewData = [
     {
       title: loading ? "Loading..." : employees.length.toString(),
-      subtitle: "Total Number of Employees",
+      subtitle: "Total Number of Motorpol Mechanic",
       icon: <GroupsIcon sx={{ fontSize: { xs: 36, sm: 38, md: 40 }, color: "#3498db" }} />,
     },
     {
