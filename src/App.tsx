@@ -17,7 +17,7 @@ function App() {
     <ColorModeContext.Provider value={colorMode}>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <BrowserRouter basename="/ERMS-CapstoneFrt">
+      <BrowserRouter basename="/MRIS-frt">
         <Approutes />
          {/* Toast Container */}
          <ToastContainer 
