@@ -14,12 +14,12 @@
   import AddIcon from "@mui/icons-material/Add";
   import EditIcon from "@mui/icons-material/Edit";
   import DeleteIcon from "@mui/icons-material/Delete";
-  import AddEmployee from "./AddEmployee";
-  import EditEmployee from "./EditEmployee";
   import VisibilityIcon from "@mui/icons-material/Visibility";
   import { useSearch } from "../../../components/SearchContext";
-  import ViewEmployee from "./ViewEmployee";
 import { tokens } from "../../../theme";
+import AddInventory from "./AddInventory";
+import ViewInventory from "./ViewInventory";
+import EditInventory from "./EditInventory";
 
   interface Employee {
     id: number;
@@ -38,7 +38,7 @@ import { tokens } from "../../../theme";
     address: string;
   }
 
-  function EmployeeManagement() {
+  function SpareInventory() {
       const theme = useTheme();
       const colors = tokens(theme.palette.mode);
     const [employees, setEmployees] = useState<Employee[]>([]);
@@ -152,7 +152,7 @@ import { tokens } from "../../../theme";
     return (
       <Box m="20px">
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Header title="Motorpol Personnel List" subtitle="Manage Employee Details" />
+          <Header title="Spare Parts Inventory" subtitle="Manage & Monitor Stocks" />
         </Box>
 
         <Box 
@@ -177,7 +177,7 @@ import { tokens } from "../../../theme";
             onClick={() => setOpenAddDialog(true)}
             ref={addDialogRef}
           >
-            Add Employee
+            Add Stocks / Inventory
           </Button>
         </Box>
       
@@ -309,7 +309,7 @@ import { tokens } from "../../../theme";
             Please Input Employee Information
           </DialogTitle>
           <DialogContent>
-            <AddEmployee onEmployeeAdded={fetchEmployees} onClose={() => setOpenAddDialog(false)} />
+            <AddInventory onEmployeeAdded={fetchEmployees} onClose={() => setOpenAddDialog(false)} />
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setOpenAddDialog(false)} color="primary" variant="contained" autoFocus
@@ -322,27 +322,15 @@ import { tokens } from "../../../theme";
         {/* View Employee Dialog */}
         <Dialog open={openViewDialog} onClose={() => setOpenViewDialog(false)} fullWidth maxWidth="md">
           <DialogContent>
-            <ViewEmployee open={openViewDialog} onClose={() => setOpenViewDialog(false)} employee={selectedEmployee} documents={mockDocuments} />
+            <ViewInventory open={openViewDialog} onClose={() => setOpenViewDialog(false)} employee={selectedEmployee} documents={mockDocuments} />
             </DialogContent>
           </Dialog>
 
 
-        {/* Edit Employee Dialog */}
-        <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)} fullWidth maxWidth="md" >
-          <DialogTitle sx={dialogStyle}>Edit Employee</DialogTitle>
-          <DialogContent>
-            <EditEmployee employeeId={selectedEmployeeId} onEmployeeUpdated={fetchEmployees} onClose={() => setOpenEditDialog(false)} />
-          </DialogContent>
-            <DialogActions>
-            <Button onClick={() => setOpenEditDialog(false)} color="primary" variant="contained" autoFocus
-                  sx={{ fontFamily:"Poppins",  fontSize: { xs: ".6rem", sm: ".7rem", md: ".8rem" }, }}>
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
+      
       </Box>
     );
   }
   
-export default EmployeeManagement;
+export default SpareInventory;
 
