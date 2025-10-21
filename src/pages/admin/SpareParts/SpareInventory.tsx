@@ -177,7 +177,7 @@ import EditInventory from "./EditInventory";
             onClick={() => setOpenAddDialog(true)}
             ref={addDialogRef}
           >
-            Add Stocks / Inventory
+            Add Stocks
           </Button>
         </Box>
       
