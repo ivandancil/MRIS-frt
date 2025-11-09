@@ -235,10 +235,15 @@ import EditInventory from "./EditInventory";
           <DataGrid
             rows={filteredEmployees}
             columns={[
-              { field: "employeeID", headerName: "Employee ID", flex: 1,  minWidth: 130,  },
-              { field: "lastname", headerName: "Last Name", flex: 1,  minWidth: 120,  },
-              { field: "firstname", headerName: "First Name", flex: 1,  minWidth: 120,  },
-              { field: "email", headerName: "Email", flex: 1,  minWidth: 230,  },
+              { field: "employeeID", headerName: "Item Code", flex: 1,  minWidth: 130,  },
+              { field: "lastname", headerName: "Item Name", flex: 1,  minWidth: 120,  },
+              { field: "firstname", headerName: "Category", flex: 1,  minWidth: 120,  },
+              { field: "model", headerName: "Model", flex: 1,  minWidth: 120,  },
+              { field: "qty", headerName: "Qty", flex: 1,  minWidth: 120,  },
+              { field: "unit", headerName: "Unit", flex: 1,  minWidth: 120,  },
+              { field: "email", headerName: "Unit Cost", flex: 1,  minWidth: 230,  },
+              { field: "supplier", headerName: "Supplier", flex: 1,  minWidth: 230,  },
+              { field: "lastpurchase", headerName: "Last Purchased", flex: 1,  minWidth: 230,  },
               {
                 field: "actions",
                 headerName: "Actions",
@@ -306,7 +311,7 @@ import EditInventory from "./EditInventory";
         <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)} fullWidth maxWidth="md">
           <DialogTitle 
             sx={dialogStyle}>
-            Please Input Employee Information
+            Please Input Item Information
           </DialogTitle>
           <DialogContent>
             <AddInventory onEmployeeAdded={fetchEmployees} onClose={() => setOpenAddDialog(false)} />

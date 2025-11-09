@@ -58,7 +58,7 @@ function AddInventory({ onEmployeeAdded, onClose }: AddEmployeeProps) {
     fontFamily: "Poppins", // Assuming Poppins for MenuItem text too
   };
 
-  const [employeeID, setEmployeeID] = useState("");
+  const [itemCode, setItemCode] = useState("");
   const [lastname, setLastname] = useState("");
   const [firstname, setFirstname] = useState("");
   const [middlename, setMiddlename] = useState("");
@@ -78,7 +78,7 @@ function AddInventory({ onEmployeeAdded, onClose }: AddEmployeeProps) {
     setError("");
     setLoading(true);
 
-    if (!employeeID || !lastname || !firstname || !middlename || !sex || !dateOfBirth || !civilStatus || !jobPosition || !phoneNumber || !email || !address) {
+    if (!itemCode || !lastname || !firstname || !middlename || !sex || !dateOfBirth || !civilStatus || !jobPosition || !phoneNumber || !email || !address) {
       setError("All fields are required.");
       setLoading(false);  // Ensure loading resets
       return;
@@ -99,7 +99,7 @@ function AddInventory({ onEmployeeAdded, onClose }: AddEmployeeProps) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ employeeID, lastname, firstname, middlename, sex, dateOfBirth, civilStatus, phoneNumber, email, address, jobPosition }),
+        body: JSON.stringify({ itemCode, lastname, firstname, middlename, sex, dateOfBirth, civilStatus, phoneNumber, email, address, jobPosition }),
       });
 
       if (!response.ok) {
@@ -112,7 +112,7 @@ function AddInventory({ onEmployeeAdded, onClose }: AddEmployeeProps) {
       onClose();
 
       // Clear form
-      setEmployeeID(""); setLastname(""); setFirstname(""); setMiddlename("");
+      setItemCode(""); setLastname(""); setFirstname(""); setMiddlename("");
       setSex(""); setDateofBirth(""); setCivilStatus(""); setPhoneNumber("");
       setEmail(""); setAddress(""); setJobPosition("");
     } catch (error) {
@@ -120,18 +120,18 @@ function AddInventory({ onEmployeeAdded, onClose }: AddEmployeeProps) {
     } finally {
       setLoading(false);
     }
-  }, [employeeID, lastname, firstname, middlename, sex, dateOfBirth, civilStatus, phoneNumber, email, address, jobPosition, onEmployeeAdded, onClose]);
+  }, [itemCode, lastname, firstname, middlename, sex, dateOfBirth, civilStatus, phoneNumber, email, address, jobPosition, onEmployeeAdded, onClose]);
 
   return (
     <form onSubmit={handleAddEmployee}>
       <Grid container spacing={2} marginTop={.8}>
         <Grid item xs={12} md={6}>
-          <TextField label="Employee ID" fullWidth value={employeeID} onChange={(e) => setEmployeeID(e.target.value)} autoComplete="off" sx={inputStyles} />
+          <TextField label="Item Code" fullWidth value={itemCode} onChange={(e) => setItemCode(e.target.value)} autoComplete="off" sx={inputStyles} />
         </Grid>
         {/* <Grid item xs={12} md={6}>
           <TextField label="Job Position" fullWidth value={jobPosition} onChange={(e) => setJobPosition(e.target.value)} autoComplete="off" sx={inputStyles} />
         </Grid> */}
-         <Grid item xs={12} md={6} sx={inputStyles}>
+         {/* <Grid item xs={12} md={6} sx={inputStyles}>
           <TextField
               select
               label="Job Position"
@@ -146,55 +146,30 @@ function AddInventory({ onEmployeeAdded, onClose }: AddEmployeeProps) {
               <MenuItem value="Supervisor" sx={menuItemTextStyles}>Supervisor</MenuItem>
             </TextField>
 
+        </Grid> */}
+        <Grid item xs={12} md={6}>
+          <TextField label="Item Name" fullWidth value={lastname} onChange={(e) => setLastname(e.target.value)} autoComplete="off" sx={inputStyles} />
         </Grid>
         <Grid item xs={12} md={4}>
-          <TextField label="Last Name" fullWidth value={lastname} onChange={(e) => setLastname(e.target.value)} autoComplete="off" sx={inputStyles} />
+          <TextField label="Category" fullWidth value={firstname} onChange={(e) => setFirstname(e.target.value)} autoComplete="off" sx={inputStyles} />
         </Grid>
         <Grid item xs={12} md={4}>
-          <TextField label="First Name" fullWidth value={firstname} onChange={(e) => setFirstname(e.target.value)} autoComplete="off" sx={inputStyles} />
+          <TextField label="Model" fullWidth value={middlename} onChange={(e) => setMiddlename(e.target.value)} autoComplete="off" sx={inputStyles} />
         </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField label="Middle Name" fullWidth value={middlename} onChange={(e) => setMiddlename(e.target.value)} autoComplete="off" sx={inputStyles} />
-        </Grid>
-        <Grid item xs={12} md={6} sx={inputStyles}>
-         <TextField
-              select
-              label="Sex"
-              value={sex}
-              onChange={(e) => setSex(e.target.value)}
-              fullWidth
-              variant="outlined"
-            >
-               <MenuItem value="Male"  sx={menuItemTextStyles}>Male</MenuItem>
-               <MenuItem value="Female"  sx={menuItemTextStyles}>Female</MenuItem>
-            </TextField>
+         <Grid item xs={12} md={4}>
+          <TextField label="Qty" fullWidth value={middlename} onChange={(e) => setMiddlename(e.target.value)} autoComplete="off" sx={inputStyles} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <TextField label="Date of Birth" fullWidth type="date" value={dateOfBirth} onChange={(e) => setDateofBirth(e.target.value)} autoComplete="off" InputLabelProps={{ shrink: true }} sx={inputStyles} />
-        </Grid>
-        <Grid item xs={12} md={6} sx={inputStyles}>
-           <TextField
-              select
-              label="Civil Status"
-              value={civilStatus}
-              onChange={(e) => setCivilStatus(e.target.value)}
-              fullWidth
-              variant="outlined"
-            >
-              <MenuItem value="Single" sx={menuItemTextStyles}>Single</MenuItem>
-              <MenuItem value="Married"  sx={menuItemTextStyles}>Married</MenuItem>
-              <MenuItem value="Divorced"  sx={menuItemTextStyles}>Divorced</MenuItem>
-              <MenuItem value="Widowed"  sx={menuItemTextStyles}>Widowed</MenuItem>
-            </TextField>
+          <TextField label="Unit" fullWidth value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} autoComplete="off" sx={inputStyles} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <TextField label="Phone Number" fullWidth value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} autoComplete="off" sx={inputStyles} />
+          <TextField label="Unit Cost" type="email" fullWidth value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="off" sx={inputStyles} />
+        </Grid>
+          <Grid item xs={12} md={6}>
+          <TextField label="Supplier" type="email" fullWidth value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="off" sx={inputStyles} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <TextField label="Email" type="email" fullWidth value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="off" sx={inputStyles} />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <TextField label="Address" fullWidth value={address} onChange={(e) => setAddress(e.target.value)} autoComplete="off" sx={inputStyles} />
+          <TextField label="Last Purchased" fullWidth value={address} onChange={(e) => setAddress(e.target.value)} autoComplete="off" sx={inputStyles} />
         </Grid>
       </Grid>
 
@@ -214,7 +189,7 @@ function AddInventory({ onEmployeeAdded, onClose }: AddEmployeeProps) {
                 { background: `${colors.grey[900]}`, }, 
               }}
             >
-          {loading ? "Adding..." : "Add Employee"}
+          {loading ? "Adding..." : "Add Item"}
         </Button>
       </Box>
 
