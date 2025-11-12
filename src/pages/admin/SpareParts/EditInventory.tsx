@@ -52,7 +52,7 @@ function EditInventory({ inventoryId, onInventoryUpdated, onClose }: EditInvento
     model: "",
     qty: "",
     unit: "",
-    unitCost: "",
+    unit_cost: "",
     supplier: "",
     lastPurchased: "",
   });
@@ -98,7 +98,7 @@ function EditInventory({ inventoryId, onInventoryUpdated, onClose }: EditInvento
           model: inventory.model || "",
           qty: inventory.qty || "",
           unit: inventory.unit || "",
-          unitCost: inventory.unitCost || "",
+          unit_cost: inventory.unit_cost || "",
           supplier: inventory.supplier || "",
           lastPurchased: inventory.last_purchased || "",
         });
@@ -236,7 +236,7 @@ function EditInventory({ inventoryId, onInventoryUpdated, onClose }: EditInvento
               <TextField
                 label="Unit Cost"
                 name="unitCost"
-                value={inventoryData.unitCost}
+                value={inventoryData.unit_cost}
                 onChange={handleChange}
                 fullWidth
                 required
