@@ -1,197 +1,166 @@
-  import { useState, useEffect, useRef } from "react";
-  import { Box,
-    Button,
-    Typography,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    useTheme,
-    useMediaQuery,
-  } from "@mui/material";
-  import { DataGrid } from "@mui/x-data-grid";
-  import Header from "../../../components/Header";
-  import AddIcon from "@mui/icons-material/Add";
-  import EditIcon from "@mui/icons-material/Edit";
-  import DeleteIcon from "@mui/icons-material/Delete";
-  import VisibilityIcon from "@mui/icons-material/Visibility";
-  import { useSearch } from "../../../components/SearchContext";
+import { useState, useEffect, useRef } from "react";
+import {
+  Box,
+  Button,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
+import Header from "../../../components/Header";
+import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import { useSearch } from "../../../components/SearchContext";
 import { tokens } from "../../../theme";
 import AddInventory from "./AddInventory";
 import ViewInventory from "./ViewInventory";
 import EditInventory from "./EditInventory";
 
-  interface Employee {
-    id: number;
-    employeeID: string;
-    jobPosition: string;
-    lastname: string;
-    firstname: string;
-    middlename: string;
-    sex: string;
-    dateOfBirth: string;
-    civilStatus: string;
-    name: string;
-    age: number;
-    phoneNumber: string;
-    email: string;
-    address: string;
-  }
+interface InventoryItem {
+  id: number;
+  itemCode: string;
+  itemName: string;
+  category: string;
+  model: string;
+  qty: number;
+  unit: string;
+  unitCost: number;
+  supplier: string;
+  lastPurchased: string;
+}
 
-  function SpareInventory() {
-      const theme = useTheme();
-      const colors = tokens(theme.palette.mode);
-    const [employees, setEmployees] = useState<Employee[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-    const [openAddDialog, setOpenAddDialog] = useState(false);
-    const [openEditDialog, setOpenEditDialog] = useState(false);
-    const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
-    const [deleteLoading, setDeleteLoading] = useState(false);
-    const [openViewDialog, setOpenViewDialog] = useState(false);
-    const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
-    const { searchTerm } = useSearch();
-    const editDialogRef = useRef<HTMLButtonElement>(null);
-     const addDialogRef = useRef<HTMLButtonElement>(null);
+function SpareInventory() {
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  const { searchTerm } = useSearch();
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openViewDialog, setOpenViewDialog] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
+  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const editDialogRef = useRef<HTMLButtonElement>(null);
+  const addDialogRef = useRef<HTMLButtonElement>(null);
 
-
-             // NEW: Reusable style for Dialog
   const dialogStyle = {
-    fontSize: { xs: ".7rem", sm: ".9rem", md: "1rem" },
-    fontFamily: "Poppins", // Assuming Poppins for MenuItem text too
+    fontSize: { xs: ".8rem", sm: ".9rem", md: "1rem" },
+    fontFamily: "Poppins",
   };
 
-          const isSmallScreen = useMediaQuery(theme.breakpoints.down('md')); 
+  // ✅ Fetch inventory from API
+  async function fetchInventory() {
+    setLoading(true);
+    setError("");
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://127.0.0.1:8000/api/inventories", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    const handleView = (employee: Employee) => {
-      setSelectedEmployee(employee);
-      setOpenViewDialog(true);
-    };
-    
-
-    // Fetch Employees
-    async function fetchEmployees() {
-      setLoading(true);
-      setError("");
-
-      try {
-        const token = localStorage.getItem("token");
-          const response = await fetch("http://127.0.0.1:8000/api/employees", {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-      
-
-        const data = await response.json();
-        const employeesArray = Array.isArray(data) ? data : data.data || [];
-
-        setEmployees(employeesArray);
-      } catch (err: any) {
-        console.error("Error fetching employees:", err.message);
-        setError(err.message || "Failed to load employee data");
-      } finally {
-        setLoading(false);
-      }
+      const data = await response.json();
+      const inventoryArray = Array.isArray(data) ? data : data.data || [];
+      setInventory(inventoryArray);
+    } catch (err: any) {
+      console.error("Error fetching inventory:", err.message);
+      setError(err.message || "Failed to load inventory data");
+    } finally {
+      setLoading(false);
     }
+  }
 
-    useEffect(() => {
-      fetchEmployees();
-    }, []);
+  useEffect(() => {
+    fetchInventory();
+  }, []);
 
-    // Delete Employee
-    const deleteEmployee = async (id: number) => {
-      if (!window.confirm("Are you sure you want to delete this employee?")) return;
+  // ✅ Delete an item
+  const deleteItem = async (id: number) => {
+    if (!window.confirm("Are you sure you want to delete this item?")) return;
 
-      setDeleteLoading(true);
-      try {
-        const token = localStorage.getItem("token");
-          const response = await fetch(`http://127.0.0.1:8000/api/employees/${id}`, {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          });
+    setDeleteLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`http://127.0.0.1:8000/api/inventories/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-        if (!response.ok) {
-          throw new Error("Failed to delete employee.");
-        }
+      if (!response.ok) throw new Error("Failed to delete item.");
 
-        setEmployees(employees.filter((employee) => employee.id !== id));
-        alert("Employee deleted successfully.");
-      } catch (error) {
-        console.error("Delete error:", error);
-        alert("Failed to delete employee.");
-      } finally {
-        setDeleteLoading(false);
-      }
-      
-    };
+      setInventory(inventory.filter((item) => item.id !== id));
+      alert("Item deleted successfully.");
+    } catch (error) {
+      console.error("Delete error:", error);
+      alert("Failed to delete item.");
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
-    // Filter employees based on search term
-    const filteredEmployees = employees.filter(
-      (employee) =>
-        employee.firstname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        employee.lastname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        employee.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        employee.employeeID.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    
-    const mockDocuments = [
-      {
-        documentName: "Personal Data Sheet",
-        // documentUrl: "http://example.com/document/certificate_of_employment.pdf"
-      }
-    ];
+  // ✅ View item
+  const handleView = (item: InventoryItem) => {
+    setSelectedItem(item);
+    setOpenViewDialog(true);
+  };
 
+  // ✅ Search filter
+  const filteredInventory = inventory.filter(
+    (item) =>
+      item.itemCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.itemName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.category?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-    return (
-      <Box m="20px">
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Header title="Spare Parts Inventory" subtitle="Manage & Monitor Stocks" />
-        </Box>
+  return (
+    <Box m="20px">
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Header title="Spare Palo Inventory" subtitle="Manage & Monitor Stocks" />
+      </Box>
 
-        <Box 
-          display="flex" // Enable flexbox
-          justifyContent="flex-end" 
-          sx={{ m:  { xs: "10px", sm: "13px", md: "15px" },}}
+      <Box display="flex" justifyContent="flex-end" sx={{ m: { xs: "10px", sm: "13px", md: "15px" } }}>
+        <Button
+          variant="contained"
+          sx={{
+            background: `${colors.primary[400]}`,
+            color: "black",
+            "&:hover": { background: `${colors.grey[900]}` },
+            textTransform: "none",
+            fontSize: { xs: ".5rem", sm: ".7rem", md: ".9rem" },
+            fontFamily: "Poppins",
+            py: { xs: 0.8, sm: 1, md: 1.3 },
+            width: { xs: "9rem", sm: "10rem", md: "12rem" },
+          }}
+          startIcon={<AddIcon />}
+          onClick={() => setOpenAddDialog(true)}
+          ref={addDialogRef}
         >
-          {/* Add Employee Button */}
-          <Button
-            variant="contained"
-              sx={{
-                background: `${colors.primary[400]}`,
-                color: "black",
-                "&:hover": { background: `${colors.grey[900]}`, },
-                textTransform: "none",
-                fontSize: { xs: ".5rem", sm: ".7rem", md: ".9rem" },
-                fontFamily: "Poppins",
-                py: { xs: .8, sm: 1, md: 1.3 },
-                width: { xs: "9rem", sm: "10rem", md: "12rem" },
-              }}
-            startIcon={<AddIcon />}
-            onClick={() => setOpenAddDialog(true)}
-            ref={addDialogRef}
-          >
-            Add Stocks
-          </Button>
-        </Box>
-      
-   
+          Add Item
+        </Button>
+      </Box>
 
-        {/* Show Error Message if API Fails */}
-        {error && (
-          <Typography color="error" textAlign="center" mt={2}>
-            {error}
-          </Typography>
-        )}
+      {error && (
+        <Typography color="error" textAlign="center" mt={2}>
+          {error}
+        </Typography>
+      )}
 
-        {/* Employee Table */}
-           <Box
+      {/* ✅ Inventory Table */}
+                 <Box
                 m="10px 0 0 0"
                 height="71vh"
                 sx={{
@@ -230,112 +199,114 @@ import EditInventory from "./EditInventory";
                       },
                   },
                 }}
-              >
-
-          <DataGrid
-            rows={filteredEmployees}
-            columns={[
-              { field: "employeeID", headerName: "Item Code", flex: 1,  minWidth: 130,  },
-              { field: "lastname", headerName: "Item Name", flex: 1,  minWidth: 120,  },
-              { field: "firstname", headerName: "Category", flex: 1,  minWidth: 120,  },
-              { field: "model", headerName: "Model", flex: 1,  minWidth: 120,  },
-              { field: "qty", headerName: "Qty", flex: 1,  minWidth: 120,  },
-              { field: "unit", headerName: "Unit", flex: 1,  minWidth: 120,  },
-              { field: "email", headerName: "Unit Cost", flex: 1,  minWidth: 230,  },
-              { field: "supplier", headerName: "Supplier", flex: 1,  minWidth: 230,  },
-              { field: "lastpurchase", headerName: "Last Purchased", flex: 1,  minWidth: 230,  },
-              {
-                field: "actions",
-                headerName: "Actions",
-                flex: 1.5,
-                minWidth: 250,
-                renderCell: (params) => (
-                  <Box display="flex" gap={1} mt={1}>
-
-                  {/* View Button */}
-                    <Button
-                        sx={{ textTransform: "none",
-                          color: colors.grey[900],
-                             fontSize: { xs: ".5rem", sm: ".6rem", md: ".8rem" }
-                             }}
-                        startIcon={<VisibilityIcon sx={{ fontSize: isSmallScreen ? '1rem' : 'inherit' }} />}
-                        onClick={() => handleView(params.row)}
-                      >
-                        View
-                    </Button>
-
-                  {/* Edit Button */}
-                    <Button
-                        sx={{ textTransform: "none",
-                          color: colors.grey[900],
-                             fontSize: { xs: ".5rem", sm: ".6rem", md: ".8rem" }
-                             }}
-                        startIcon={<EditIcon sx={{ fontSize: isSmallScreen ? '1rem' : 'inherit' }} />}
-                        onClick={() => {
-                          setSelectedEmployeeId(params.row.id);
-                          setOpenEditDialog(true);
-                        }}
-                        ref={editDialogRef}
-                      >
-                        Edit
-                    </Button>
-
-                  {/* Delete Button */}
-                    <Button
-                        sx={{
-                          textTransform: "none",
-                          fontSize: { xs: ".5rem", sm: ".6rem", md: ".8rem" },
-                          backgroundColor: "primary", 
-                          "&:hover": { backgroundColor: "primary" },
-                        }}
-                      startIcon={<DeleteIcon sx={{ fontSize: isSmallScreen ? '1rem' : 'inherit' }} />}
-                      color="error"
-                      onClick={() => deleteEmployee(params.row.id)}
-                      disabled={deleteLoading}
-                    >
-                        {deleteLoading ? "Deleting..." : "Delete"}
-                    </Button>
-                  </Box>
-                ),
-              },
-            ]}
-            loading={loading}
-            getRowId={(row) => row.id}
-            pageSizeOptions={[5, 10, 20]}
-            paginationModel={{ page: 0, pageSize: 10 }}
-          
-          />
-        </Box>
-
-        {/* Add Employee Dialog */}
-        <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)} fullWidth maxWidth="md">
-          <DialogTitle 
-            sx={dialogStyle}>
-            Please Input Item Information
-          </DialogTitle>
-          <DialogContent>
-            <AddInventory onEmployeeAdded={fetchEmployees} onClose={() => setOpenAddDialog(false)} />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenAddDialog(false)} color="primary" variant="contained" autoFocus
-                  sx={{ fontFamily:"Poppins",  fontSize: { xs: ".6rem", sm: ".7rem", md: ".8rem" }, }}>
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        {/* View Employee Dialog */}
-        <Dialog open={openViewDialog} onClose={() => setOpenViewDialog(false)} fullWidth maxWidth="md">
-          <DialogContent>
-            <ViewInventory open={openViewDialog} onClose={() => setOpenViewDialog(false)} employee={selectedEmployee} documents={mockDocuments} />
-            </DialogContent>
-          </Dialog>
-
-
-      
+              > 
+        <DataGrid
+          rows={filteredInventory}
+          columns={[
+            { field: "item_code", headerName: "Item Code", flex: 1 },
+            { field: "item_name", headerName: "Item Name", flex: 1 },
+            { field: "category", headerName: "Category", flex: 1 },
+            { field: "model", headerName: "Model", flex: 1 },
+            { field: "qty", headerName: "Qty", flex: 1 },
+            { field: "unit", headerName: "Unit", flex: 1 },
+            // { field: "unit_cost", headerName: "Unit Cost", flex: 1 },
+            { field: "supplier", headerName: "Supplier", flex: 1 },
+            // { field: "last_purchased", headerName: "Last Purchased", flex: 1 },
+            {
+              field: "actions",
+              headerName: "Actions",
+              flex: 1.5,
+              renderCell: (params) => (
+                <Box display="flex" gap={1} mt={1}>
+                  <Button
+                    sx={{ textTransform: "none", color: colors.grey[900] }}
+                    startIcon={<VisibilityIcon />}
+                    onClick={() => handleView(params.row)}
+                  >
+                    View
+                  </Button>
+                  <Button
+                    sx={{ textTransform: "none", color: colors.grey[900] }}
+                    startIcon={<EditIcon />}
+                    onClick={() => {
+                      setSelectedItemId(params.row.id);
+                      setOpenEditDialog(true);
+                    }}
+                    ref={editDialogRef}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    sx={{ textTransform: "none" }}
+                    color="error"
+                    startIcon={<DeleteIcon />}
+                    onClick={() => deleteItem(params.row.id)}
+                    disabled={deleteLoading}
+                  >
+                    {deleteLoading ? "Deleting..." : "Delete"}
+                  </Button>
+                </Box>
+              ),
+            },
+          ]}
+          loading={loading}
+          getRowId={(row) => row.id}
+          pageSizeOptions={[5, 10, 20]}
+          paginationModel={{ page: 0, pageSize: 10 }}
+        />
       </Box>
-    );
-  }
-  
-export default SpareInventory;
 
+      {/* ✅ Add Item Dialog */}
+      <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)} fullWidth maxWidth="md">
+        <DialogTitle sx={dialogStyle}>Add New Inventory Item</DialogTitle>
+        <DialogContent>
+          <AddInventory onInventoryAdded={fetchInventory} onClose={() => setOpenAddDialog(false)} />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setOpenAddDialog(false)}
+            variant="contained"
+            sx={{ fontFamily: "Poppins" }}
+          >
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ✅ View Item Dialog */}
+      <Dialog open={openViewDialog} onClose={() => setOpenViewDialog(false)} fullWidth maxWidth="sm">
+        <ViewInventory
+          open={openViewDialog}
+          onClose={() => setOpenViewDialog(false)}
+          inventory={selectedItem}
+        />
+      </Dialog>
+
+        {/* Edit Employee Dialog */}
+ <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)} fullWidth maxWidth="md">
+  <DialogTitle sx={dialogStyle}>Edit Inventory Item</DialogTitle>
+  <DialogContent>
+    <EditInventory
+      inventoryId={selectedItemId}
+      onInventoryUpdated={fetchInventory}
+      onClose={() => setOpenEditDialog(false)}
+    />
+  </DialogContent>
+  <DialogActions>
+    <Button
+      onClick={() => setOpenEditDialog(false)}
+      color="primary"
+      variant="contained"
+      autoFocus
+      sx={{ fontFamily: "Poppins", fontSize: { xs: ".6rem", sm: ".7rem", md: ".8rem" } }}
+    >
+      Close
+    </Button>
+  </DialogActions>
+</Dialog>
+
+    </Box>
+  );
+}
+
+export default SpareInventory;
