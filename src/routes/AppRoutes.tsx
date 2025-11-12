@@ -16,6 +16,8 @@ import UploadPDS from "../pages/user/UploadPDS";
 import ExtractID from "../pages/user/ExtractID";
 import Reports from "../pages/admin/Reports";
 import UploadDocs from "../pages/admin/UploadDocs";
+import SpareInventory from "../pages/admin/SpareParts/SpareInventory";
+
 
 
 const Approutes = () => {
@@ -36,6 +38,7 @@ const Approutes = () => {
       >
         <Route index element={<Dashboard />} />
         <Route path="employee_management" element={<EmployeeManagement />} />
+        <Route path="spare_inventory" element={<SpareInventory />} />
         <Route path="system_management" element={<SystemManagement />} />
         <Route path="reports" element={<Reports />} />
         <Route path="upload_docs" element={<UploadDocs />} />

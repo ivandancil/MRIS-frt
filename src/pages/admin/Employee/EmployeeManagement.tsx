@@ -152,7 +152,7 @@ import { tokens } from "../../../theme";
     return (
       <Box m="20px">
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Header title="Employee Management List" subtitle="Manage Employee Details" />
+          <Header title="Motorpol Personnel List" subtitle="Manage Employee Details" />
         </Box>
 
         <Box 
@@ -177,7 +177,7 @@ import { tokens } from "../../../theme";
             onClick={() => setOpenAddDialog(true)}
             ref={addDialogRef}
           >
-            Create Employee
+            Add Employee
           </Button>
         </Box>
       
