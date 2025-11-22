@@ -17,15 +17,15 @@ import { tokens } from "../../../theme";
 // --- Inventory Interface ---
 interface Inventory {
   id: number;
-  item_code: string;
-  item_name: string;
+  itemCode: string;
+  itemName: string;
   category: string;
   model: string;
   qty: number;
   unit: string;
-  unit_cost: number;
+  unitCost: number;
   supplier: string;
-  last_purchased: string;
+  lastPurchased: string;
 }
 
 // --- Props Interface ---
@@ -134,7 +134,7 @@ function ViewInventory({ open, onClose, inventory }: ViewInventoryProps) {
                 fontFamily="Poppins"
                 sx={{ fontSize: { xs: "1rem", sm: "1.2rem", md: "1.8rem" } }}
               >
-                {inventory.item_name}
+                {inventory.itemName}
               </Typography>
               <Typography
                 color="textSecondary"
@@ -156,7 +156,7 @@ function ViewInventory({ open, onClose, inventory }: ViewInventoryProps) {
               <Grid container spacing={{ xs: 1, sm: 2 }}>
                 <Grid item xs={12} sm={6}>
                   <Typography sx={label}>Item Code:</Typography>
-                  <Typography sx={value}>{inventory.item_code || "N/A"}</Typography>
+                  <Typography sx={value}>{inventory.itemCode || "N/A"}</Typography>
                 </Grid>
 
                 <Grid item xs={12} sm={6}>
@@ -177,7 +177,7 @@ function ViewInventory({ open, onClose, inventory }: ViewInventoryProps) {
                 <Grid item xs={12} sm={6}>
                   <Typography sx={label}>Unit Cost:</Typography>
                   <Typography sx={value}>
-                    ₱{inventory.unit_cost?.toLocaleString() || "N/A"}
+                    ₱{inventory.unitCost?.toLocaleString() || "N/A"}
                   </Typography>
                 </Grid>
 
@@ -188,7 +188,7 @@ function ViewInventory({ open, onClose, inventory }: ViewInventoryProps) {
 
                 <Grid item xs={12} sm={6}>
                   <Typography sx={label}>Last Purchased:</Typography>
-                  <Typography sx={value}>{inventory.last_purchased || "N/A"}</Typography>
+                  <Typography sx={value}>{inventory.lastPurchased || "N/A"}</Typography>
                 </Grid>
               </Grid>
             </CardContent>
