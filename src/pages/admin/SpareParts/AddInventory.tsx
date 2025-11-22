@@ -8,8 +8,9 @@ import {
   Grid,
   useTheme,
   MenuItem,
+  Autocomplete
 } from "@mui/material";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { tokens } from "../../../theme";
 
 interface AddInventoryProps {
@@ -57,12 +58,58 @@ function AddInventory({ onInventoryAdded, onClose }: AddInventoryProps) {
   const [unitCost, setUnitCost] = useState("");
   const [supplier, setSupplier] = useState("");
   const [lastPurchased, setLastPurchased] = useState("");
+  const [itemOptions, setItemOptions] = useState<any[]>([]);
+
 
   // State for errors and loading
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [generalError, setGeneralError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  // --- Auto-fill existing item ---
+const fetchItemByName = async (name: string) => {
+  if (!name) {
+    setItemOptions([]);
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem("token");
+    const res = await fetch(
+      `http://127.0.0.1:8000/api/items/search?name=${encodeURIComponent(name)}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    if (!res.ok) {
+      setItemOptions([]);
+      return;
+    }
+
+    const data = await res.json();
+
+    // Backend now returns an array → set directly
+    if (Array.isArray(data)) {
+      setItemOptions(data);
+    } else {
+      setItemOptions([]); // avoid errors
+    }
+  } catch (error) {
+    console.log("Search error:", error);
+    setItemOptions([]);
+  } 
+};
+
+
+
+useEffect(() => {
+  const timer = setTimeout(() => {
+    fetchItemByName(itemName);
+  }, 300);
+  return () => clearTimeout(timer);
+}, [itemName]);
 
   const handleAddInventory = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
@@ -180,17 +227,40 @@ function AddInventory({ onInventoryAdded, onClose }: AddInventoryProps) {
 
         {/* Item Name */}
         <Grid item xs={12} md={6}>
-          <TextField
-            label="Item Name"
-            fullWidth
-            value={itemName}
-            onChange={(e) => setItemName(e.target.value)}
-            autoComplete="off"
-            error={!!fieldErrors.item_name}
-            helperText={fieldErrors.item_name}
-            sx={inputStyles}
-          />
-        </Grid>
+  <Autocomplete
+    freeSolo
+    options={itemOptions}
+    getOptionLabel={(option) =>
+      typeof option === "string" ? option : option.item_name
+    }
+    onInputChange={(_, value) => setItemName(value)}
+    onChange={(_, value) => {
+      if (value && typeof value !== "string") {
+        // auto-fill fields
+        setItemName(value.item_name);
+        setItemCode(value.item_code);
+        setCategory(value.category);
+        setUnit(value.unit);
+        setUnitCost(String(value.unit_cost));
+        setModel(value.model || "");
+        setSupplier(value.supplier || "");
+        setLastPurchased(value.last_purchased || "");
+      }
+    }}
+    renderInput={(params) => (
+      <TextField
+        {...params}
+        label="Item Name"
+        fullWidth
+        autoComplete="off"
+        sx={inputStyles}
+        error={!!fieldErrors.item_name}
+        helperText={fieldErrors.item_name}
+      />
+    )}
+  />
+</Grid>
+
 
         {/* Category */}
         {/* <Grid item xs={12} md={4}>
@@ -219,6 +289,7 @@ function AddInventory({ onInventoryAdded, onClose }: AddInventoryProps) {
           >
               <MenuItem value="Mechanical"  sx={menuItemTextStyles}>Mechanical</MenuItem>
               <MenuItem value="Electrical"  sx={menuItemTextStyles}>Electrical</MenuItem>
+              
             </TextField>
           </Grid>
 
@@ -311,6 +382,7 @@ function AddInventory({ onInventoryAdded, onClose }: AddInventoryProps) {
             sx={inputStyles}
           />
         </Grid>
+        
       </Grid>
 
       {/* General Error */}

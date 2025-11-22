@@ -163,6 +163,7 @@ function ViewInventory({ open, onClose, inventory }: ViewInventoryProps) {
                   <Typography sx={label}>Model:</Typography>
                   <Typography sx={value}>{inventory.model || "N/A"}</Typography>
                 </Grid>
+                
 
                 <Grid item xs={12} sm={6}>
                   <Typography sx={label}>Quantity:</Typography>

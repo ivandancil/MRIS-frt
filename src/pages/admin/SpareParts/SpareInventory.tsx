@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Box,
   Button,
@@ -10,6 +10,7 @@ import {
   useTheme,
   Tabs,
   Tab,
+  useMediaQuery,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import Header from "../../../components/Header";
@@ -20,6 +21,8 @@ import { tokens } from "../../../theme";
 import AddInventory from "./AddInventory";
 import ViewInventory from "./ViewInventory";
 import EditInventory from "./EditInventory";
+  import VisibilityIcon from "@mui/icons-material/Visibility";
+    import EditIcon from "@mui/icons-material/Edit";
 
 interface InventoryItem {
   id: number;
@@ -50,6 +53,10 @@ function SpareInventory() {
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
 
+  const editDialogRef = useRef<HTMLButtonElement>(null);
+
+      const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
+
   const [deleteLoadingIds, setDeleteLoadingIds] = useState<number[]>([]);
   const [tabValue, setTabValue] = useState(0); // 0: Daily Purchases, 1: Master List
 
@@ -57,6 +64,8 @@ function SpareInventory() {
     fontSize: { xs: ".8rem", sm: ".9rem", md: "1rem" },
     fontFamily: "Poppins",
   };
+
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down('md')); 
 
   // --- Fetch Inventory ---
   const fetchInventory = async () => {
@@ -240,32 +249,68 @@ function SpareInventory() {
             <DataGrid
               rows={filteredInventory}
               columns={[
+                { field: "lastPurchased", headerName: "Purchase Date", flex: 1 },
                 { field: "itemCode", headerName: "Item Code", flex: 1 },
                 { field: "itemName", headerName: "Item Name", flex: 1 },
-                { field: "category", headerName: "Category", flex: 1 },
+                // { field: "category", headerName: "Category", flex: 1 },
                 { field: "model", headerName: "Model", flex: 1 },
-                { field: "qty", headerName: "Qty", flex: 1 },
+                { field: "qty", headerName: "Qty", flex: 0.5 },
                 { field: "unit", headerName: "Unit", flex: 1 },
                 { field: "supplier", headerName: "Supplier", flex: 1 },
-                {
-                  field: "actions",
-                  headerName: "Actions",
-                  flex: 1,
-                  renderCell: (params) => (
-                    <Box display="flex" gap={1}>
-                      <Button
-                        sx={{ textTransform: "none" }}
-                        color="error"
-                        onClick={() => deleteItem(params.row.id)}
-                        disabled={deleteLoadingIds.includes(params.row.id)}
+               {
+                field: "actions",
+                headerName: "Actions",
+                flex: 1.5,
+                renderCell: (params) => (
+                   <Box display="flex" gap={1} mt={1}>
+
+                    {/* View Button */}
+                    <Button
+                        sx={{ textTransform: "none",
+                          color: colors.grey[900],
+                             fontSize: { xs: ".5rem", sm: ".6rem", md: ".8rem" }
+                             }}
+                        startIcon={<VisibilityIcon sx={{ fontSize: isSmallScreen ? '1rem' : 'inherit' }} />}
+                        onClick={() => handleView(params.row)}
                       >
-                        {deleteLoadingIds.includes(params.row.id)
-                          ? "Deleting..."
-                          : "Delete"}
-                      </Button>
-                    </Box>
-                  ),
-                },
+                        View
+                    </Button>
+
+                  {/* Edit Button */}
+                    <Button
+                        sx={{ textTransform: "none",
+                          color: colors.grey[900],
+                             fontSize: { xs: ".5rem", sm: ".6rem", md: ".8rem" }
+                             }}
+                        startIcon={<EditIcon sx={{ fontSize: isSmallScreen ? '1rem' : 'inherit' }} />}
+                        onClick={() => {
+                          setSelectedEmployeeId(params.row.id);
+                          setOpenEditDialog(true);
+                        }}
+                        ref={editDialogRef}
+                      >
+                        Edit
+                    </Button>
+                  
+                    <Button
+                       sx={{
+                          textTransform: "none",
+                          fontSize: { xs: ".5rem", sm: ".6rem", md: ".8rem" },
+                          backgroundColor: "primary", 
+                          "&:hover": { backgroundColor: "primary" },
+                        }}
+                      startIcon={<DeleteIcon sx={{ fontSize: isSmallScreen ? '1rem' : 'inherit' }} />}
+                      color="error"
+                      onClick={() => deleteItem(params.row.id)}
+                      disabled={deleteLoadingIds.includes(params.row.id)}
+                    >
+                     
+                      {deleteLoadingIds.includes(params.row.id) ? "Deleting..." : "Delete"}
+                    </Button>
+                  </Box>
+                ),
+              }
+
               ]}
               loading={loading}
               getRowId={(row) => row.id}
@@ -349,9 +394,27 @@ function SpareInventory() {
                   headerName: "Actions",
                   flex: 1,
                   renderCell: (params) => (
-                    <Box display="flex" gap={1}>
-                      <Button
-                        sx={{ textTransform: "none" }}
+                    <Box display="flex" gap={1} mt={1}>
+                        {/* View Button */}
+                    <Button
+                        sx={{ textTransform: "none",
+                          color: colors.grey[900],
+                             fontSize: { xs: ".5rem", sm: ".6rem", md: ".8rem" }
+                             }}
+                        startIcon={<VisibilityIcon sx={{ fontSize: isSmallScreen ? '1rem' : 'inherit' }} />}
+                        onClick={() => handleView(params.row)}
+                      >
+                        View
+                    </Button>
+
+                      {/* <Button
+                         sx={{
+                          textTransform: "none",
+                          fontSize: { xs: ".5rem", sm: ".6rem", md: ".8rem" },
+                          backgroundColor: "primary", 
+                          "&:hover": { backgroundColor: "primary" },
+                        }}
+                          startIcon={<DeleteIcon sx={{ fontSize: isSmallScreen ? '1rem' : 'inherit' }} />}
                         color="error"
                         onClick={() => deleteItem(params.row.id)}
                         disabled={deleteLoadingIds.includes(params.row.id)}
@@ -359,7 +422,7 @@ function SpareInventory() {
                         {deleteLoadingIds.includes(params.row.id)
                           ? "Deleting..."
                           : "Delete"}
-                      </Button>
+                      </Button> */}
                     </Box>
                   ),
                 },
@@ -384,10 +447,12 @@ function SpareInventory() {
           <AddInventory
             onInventoryAdded={fetchInventory}
             onClose={() => setOpenAddDialog(false)}
+          
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenAddDialog(false)}>Close</Button>
+          <Button  onClick={() => setOpenAddDialog(false)} color="primary" variant="contained" autoFocus
+             sx={{ fontFamily:"Poppins",  fontSize: { xs: ".6rem", sm: ".7rem", md: ".8rem" }, }}>Close</Button>
         </DialogActions>
       </Dialog>
 

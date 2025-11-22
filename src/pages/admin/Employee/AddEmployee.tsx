@@ -140,10 +140,11 @@ function AddEmployee({ onEmployeeAdded, onClose }: AddEmployeeProps) {
               fullWidth
               variant="outlined"
             >
-              <MenuItem value="Teacher" sx={menuItemTextStyles}>Teacher</MenuItem>
-              <MenuItem value="Teacher I" sx={menuItemTextStyles}>Teacher I</MenuItem>
-              <MenuItem value="Teacher II" sx={menuItemTextStyles}>Teacher II</MenuItem>
-              <MenuItem value="Supervisor" sx={menuItemTextStyles}>Supervisor</MenuItem>
+              <MenuItem value="Encoder" sx={menuItemTextStyles}>Encoder</MenuItem>
+              <MenuItem value="Helper" sx={menuItemTextStyles}>Helper</MenuItem>
+              <MenuItem value="Mechanic" sx={menuItemTextStyles}>Mechanic</MenuItem>
+              <MenuItem value="Welder" sx={menuItemTextStyles}>Welder</MenuItem>
+              <MenuItem value="Supervisor/Mechanic" sx={menuItemTextStyles}>Supervisor/Mechanic</MenuItem>
             </TextField>
 
         </Grid>

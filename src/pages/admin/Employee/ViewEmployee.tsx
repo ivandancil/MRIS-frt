@@ -174,6 +174,10 @@ function ViewEmployee({ open, onClose, employee, documents }: ViewEmployeeDialog
                   <Typography sx={value}>{employee.employeeID || "N/A"}</Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
+                  <Typography sx={label}>Job Position:</Typography>
+                  <Typography sx={value}>{employee.jobPosition || "N/A"}</Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
                   <Typography sx={label}>Sex:</Typography>
                   <Typography sx={value}>{employee.sex || "N/A"}</Typography>
                 </Grid>
