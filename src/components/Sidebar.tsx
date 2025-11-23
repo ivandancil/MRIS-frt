@@ -243,6 +243,7 @@ function Sidebar({ role, isCollapsed, toggleSidebar }: SidebarProps) {
           <Item title="System Management" to="/admin/system_management" icon={<FaUsers />} selected={selected} setSelected={setSelected} />
           <Item title="Personnel List" to="/admin/employee_management" icon={<FaUsers />} selected={selected} setSelected={setSelected} />
           <Item title="Spare parts Inventory" to="/admin/spare_inventory" icon={<FaUsers />} selected={selected} setSelected={setSelected} />
+          <Item title="Requesitions" to="/admin/requesitions" icon={<FaUsers />} selected={selected} setSelected={setSelected} />
           <Item title="Uploaded Documents" to="/admin/upload_docs" icon={<FaUpload />} selected={selected} setSelected={setSelected} />
           <Item title="Reports" to="/admin/reports" icon={<FaEye />} selected={selected} setSelected={setSelected} />
 

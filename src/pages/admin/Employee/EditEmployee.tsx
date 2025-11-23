@@ -8,6 +8,16 @@ interface EditEmployeeProps {
   onClose: () => void;
 }
 
+const jobPositions: string[] = [
+  "Encoder",
+  "Helper",
+  "Mechanic",
+  "Welder",
+  "Supervisor/Mechanic",
+  "ToolKeeper",
+];
+
+
 function EditEmployee({ employeeId, onEmployeeUpdated, onClose }: EditEmployeeProps) {
        const theme = useTheme();
               const colors = tokens(theme.palette.mode);
@@ -75,6 +85,23 @@ function EditEmployee({ employeeId, onEmployeeUpdated, onClose }: EditEmployeePr
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const [age, setAge] = useState<number | null>(null);
+
+  useEffect(() => {
+  if (employeeData.dateOfBirth) {
+    const birthDate = new Date(employeeData.dateOfBirth);
+    const today = new Date();
+    let computedAge = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      computedAge--;
+    }
+    setAge(computedAge);
+  } else {
+    setAge(null);
+  }
+}, [employeeData.dateOfBirth]);
 
   useEffect(() => {
     if (!employeeId) {
@@ -216,8 +243,8 @@ function EditEmployee({ employeeId, onEmployeeUpdated, onClose }: EditEmployeePr
         <TextField
           label="Employee ID"
           name="employeeID"
-          
           value={employeeData.employeeID}
+          InputProps={{ readOnly: true }}
           fullWidth
           required
           sx={inputStyles}
@@ -226,21 +253,23 @@ function EditEmployee({ employeeId, onEmployeeUpdated, onClose }: EditEmployeePr
 
         {/* Job Position (Dropdown) */}
         <Grid item xs={12} md={6} sx={inputStyles}>
-        <TextField
-          select
-          label="Job Position"
-          name="jobPosition"
-          value={employeeData.jobPosition}
-          onChange={handleSelectChange}
-          fullWidth
-          variant="outlined"
-        >
-              <MenuItem value="Teacher" sx={menuItemTextStyles}>Teacher</MenuItem>
-              <MenuItem value="Teacher I" sx={menuItemTextStyles}>Teacher I</MenuItem>
-              <MenuItem value="Teacher II" sx={menuItemTextStyles}>Teacher II</MenuItem>
-              <MenuItem value="Supervisor" sx={menuItemTextStyles}>Supervisor</MenuItem>
-        </TextField>
-      </Grid>
+          <TextField
+            select
+            label="Job Position"
+            name="jobPosition"
+            value={employeeData.jobPosition}
+            onChange={handleSelectChange}
+            fullWidth
+            variant="outlined"
+          >
+            {jobPositions.map((position) => (
+              <MenuItem key={position} value={position} sx={menuItemTextStyles}>
+                {position}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+
 
       {/* Name Fields */}
       <Grid item xs={12} md={4}>
@@ -311,6 +340,18 @@ function EditEmployee({ employeeId, onEmployeeUpdated, onClose }: EditEmployeePr
         />
       </Grid>
 
+       {/* AGE */}
+      <Grid item xs={12} md={6}>
+        <TextField
+          label="Age"
+          name="age"
+           fullWidth
+          value={age !== null ? age : ""}
+          InputProps={{ readOnly: true }}
+          sx={inputStyles}
+        />
+      </Grid>
+
       {/* Civil Status (Dropdown) */}
       <Grid item xs={12} md={6} sx={inputStyles}>
       <TextField
@@ -325,8 +366,7 @@ function EditEmployee({ employeeId, onEmployeeUpdated, onClose }: EditEmployeePr
   >
     <MenuItem value="Single" sx={menuItemTextStyles}>Single</MenuItem>
     <MenuItem value="Married" sx={menuItemTextStyles}>Married</MenuItem>
-    <MenuItem value="Divorced" sx={menuItemTextStyles}>Divorced</MenuItem>
-    <MenuItem value="Widowed" sx={menuItemTextStyles}>Widowed</MenuItem>
+
   </TextField>
       </Grid>
 
@@ -340,20 +380,6 @@ function EditEmployee({ employeeId, onEmployeeUpdated, onClose }: EditEmployeePr
           fullWidth
           required
           autoComplete="off"
-          sx={inputStyles}
-        />
-      </Grid>
-
-      {/* Email (Disabled) */}
-      <Grid item xs={12} md={6}>
-        <TextField
-          label="Email"
-          name="email"
-          type="email"
-         
-          value={employeeData.email}
-          fullWidth
-          required
           sx={inputStyles}
         />
       </Grid>

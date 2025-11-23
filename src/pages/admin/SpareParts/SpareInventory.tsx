@@ -21,8 +21,8 @@ import { tokens } from "../../../theme";
 import AddInventory from "./AddInventory";
 import ViewInventory from "./ViewInventory";
 import EditInventory from "./EditInventory";
-  import VisibilityIcon from "@mui/icons-material/Visibility";
-    import EditIcon from "@mui/icons-material/Edit";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import EditIcon from "@mui/icons-material/Edit";
 
 interface InventoryItem {
   id: number;
@@ -36,6 +36,21 @@ interface InventoryItem {
   supplier: string;
   lastPurchased: string;
 }
+
+
+// -------------------- DATE FORMATTER --------------------
+const formatDate = (dateString: string) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return dateString;
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+// ---------------------------------------------------------
+
 
 function SpareInventory() {
   const theme = useTheme();
@@ -92,7 +107,7 @@ function SpareInventory() {
           unit: item.unit,
           unitCost: item.unit_cost,
           supplier: item.supplier,
-          lastPurchased: item.last_purchased,
+            lastPurchased: formatDate(item.last_purchased), // 🎯 APPLY FORMAT HERE
         })
       );
       setInventory(inventoryArray);
@@ -283,10 +298,11 @@ function SpareInventory() {
                              fontSize: { xs: ".5rem", sm: ".6rem", md: ".8rem" }
                              }}
                         startIcon={<EditIcon sx={{ fontSize: isSmallScreen ? '1rem' : 'inherit' }} />}
-                        onClick={() => {
-                          setSelectedEmployeeId(params.row.id);
-                          setOpenEditDialog(true);
-                        }}
+                       onClick={() => {
+                      setSelectedItemId(params.row.id); // update selectedItemId
+                      setOpenEditDialog(true);
+                    }}
+
                         ref={editDialogRef}
                       >
                         Edit

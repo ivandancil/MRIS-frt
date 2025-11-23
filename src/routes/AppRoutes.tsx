@@ -17,6 +17,7 @@ import ExtractID from "../pages/user/ExtractID";
 import Reports from "../pages/admin/Reports";
 import UploadDocs from "../pages/admin/UploadDocs";
 import SpareInventory from "../pages/admin/SpareParts/SpareInventory";
+import Request from "../pages/admin/Requisitions/Request";
 
 
 
@@ -43,6 +44,7 @@ const Approutes = () => {
         <Route path="reports" element={<Reports />} />
         <Route path="upload_docs" element={<UploadDocs />} />
         <Route path="employee/details/:id" element={<EmployeeProfile />} />
+        <Route path="requesitions" element={<Request/>} />
 
       </Route>
 

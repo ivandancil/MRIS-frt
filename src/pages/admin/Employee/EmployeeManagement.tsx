@@ -238,7 +238,8 @@ import { tokens } from "../../../theme";
               { field: "employeeID", headerName: "Employee ID", flex: 1,  minWidth: 130,  },
               { field: "lastname", headerName: "Last Name", flex: 1,  minWidth: 120,  },
               { field: "firstname", headerName: "First Name", flex: 1,  minWidth: 120,  },
-              { field: "email", headerName: "Email", flex: 1,  minWidth: 230,  },
+              { field: "jobPosition", headerName: "Job Position", flex: 1,  minWidth: 230,  },
+              
               {
                 field: "actions",
                 headerName: "Actions",

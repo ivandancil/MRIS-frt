@@ -20,23 +20,57 @@ function EditInventory({ inventoryId, onInventoryUpdated, onClose }: EditInvento
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
-  // Styling for inputs
-  const inputStyles = {
-    "& .MuiInputLabel-root": {
-      color: "black !important",
-      fontSize: { xs: ".7rem", sm: ".8rem", md: "1rem" },
-      fontFamily: "Poppins",
-    },
-    "& .MuiOutlinedInput-root fieldset": {
-      borderColor: "black !important",
-      borderWidth: 1,
-    },
-    "& .MuiInputBase-input": {
-      color: "black",
-      fontSize: { xs: ".7rem", sm: ".9rem", md: "1.1rem" },
-      fontFamily: "Poppins",
-    },
-  };
+  // Styles: Placeholder turns white on hover!
+          const inputStyles = {
+         
+              "& .MuiInputLabel-root": {
+                color: "black !important",
+                  fontSize: { xs: ".7rem", sm: ".8rem", md: "1rem" },
+                  fontFamily: "Poppins",
+                // Adjust label position for smaller height on xs screens
+                [theme.breakpoints.down('sm')]: {
+                  transform: 'translate(14px, 8px) scale(1) !important', // Default position on xs
+                  '&.MuiInputLabel-shrink': {
+                    transform: 'translate(14px, -9px) scale(0.75) !important', // Shrunk position on xs
+                  },
+                },
+              },
+              "& .MuiOutlinedInput-root fieldset": { borderColor: "black !important", borderWidth: 1 },
+              "& .MuiInputBase-input": {
+                color: "black",
+                  fontSize: { xs: ".7rem", sm: ".9rem", md: "1.1rem" },
+                   fontFamily: "Poppins",
+                // Reduce padding/height only on extra-small screens
+                [theme.breakpoints.down('sm')]: {
+                  paddingTop: '8px', // Smaller top padding for xs
+                  paddingBottom: '8px', // Smaller bottom padding for xs
+                  // If you use start/end adornments, adjust their padding too
+                  '&.MuiInputBase-inputAdornedStart': {
+                    paddingLeft: '8px',
+                  },
+                  '&.MuiInputBase-inputAdornedEnd': {
+                    paddingRight: '8px',
+                  },
+                },
+                // Default padding/height for sm and up (Material-UI default)
+                [theme.breakpoints.up('sm')]: {
+                  paddingTop: '16.5px', // Standard Material-UI padding-top
+                  paddingBottom: '16.5px', // Standard Material-UI padding-bottom
+                  height: 'auto', // Ensure height is flexible
+                }
+              },
+            }
+
+            const formatDateForInput = (dateString: string) => {
+              if (!dateString) return "";
+              const date = new Date(dateString);
+              if (isNaN(date.getTime())) return "";
+              const yyyy = date.getFullYear();
+              const mm = String(date.getMonth() + 1).padStart(2, "0"); // months are 0-based
+              const dd = String(date.getDate()).padStart(2, "0");
+              return `${yyyy}-${mm}-${dd}`;
+            };
+
 
   // Menu Item styling
   const menuItemTextStyles = {
@@ -100,7 +134,7 @@ function EditInventory({ inventoryId, onInventoryUpdated, onClose }: EditInvento
           unit: inventory.unit || "",
           unit_cost: inventory.unit_cost || "",
           supplier: inventory.supplier || "",
-          lastPurchased: inventory.last_purchased || "",
+            lastPurchased: formatDateForInput(inventory.last_purchased),
         });
       } catch (err: any) {
         console.error("Error fetching inventory:", err.message);
@@ -119,39 +153,54 @@ function EditInventory({ inventoryId, onInventoryUpdated, onClose }: EditInvento
   };
 
   // Update inventory
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inventoryId) return;
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!inventoryId) return;
 
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/inventories/${inventoryId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(inventoryData),
-        }
-      );
+  setLoading(true);
+  try {
+    const token = localStorage.getItem("token");
 
-      if (!response.ok) {
-        throw new Error(`Failed to update inventory. Status: ${response.status}`);
+    // Map frontend state to backend keys
+    const payload = {
+      item_code: inventoryData.itemCode,
+      item_name: inventoryData.itemName,
+      category: inventoryData.category,
+      model: inventoryData.model,
+      qty: inventoryData.qty,
+      unit: inventoryData.unit,
+      unit_cost: inventoryData.unit_cost,
+      supplier: inventoryData.supplier,
+      last_purchased: inventoryData.lastPurchased,
+    };
+
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/inventories/${inventoryId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
       }
+    );
 
-      alert("Inventory updated successfully.");
-      onInventoryUpdated();
-      onClose();
-    } catch (error) {
-      console.error("Update error:", error);
-      alert("Failed to update inventory.");
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      throw new Error(`Failed to update inventory. Status: ${response.status}`);
     }
-  };
+
+    alert("Inventory updated successfully.");
+    onInventoryUpdated();
+    onClose();
+  } catch (error) {
+    console.error("Update error:", error);
+    alert("Failed to update inventory.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <form onSubmit={handleSubmit}>
@@ -167,7 +216,7 @@ function EditInventory({ inventoryId, onInventoryUpdated, onClose }: EditInvento
                 label="Item Code"
                 name="itemCode"
                 value={inventoryData.itemCode}
-                onChange={handleChange}
+                InputProps={{ readOnly: true }}
                 fullWidth
                 required
                 sx={inputStyles}
@@ -186,15 +235,18 @@ function EditInventory({ inventoryId, onInventoryUpdated, onClose }: EditInvento
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={6} sx={inputStyles}>
               <TextField
+                select
                 label="Category"
                 name="category"
                 value={inventoryData.category}
                 onChange={handleChange}
                 fullWidth
-                sx={inputStyles}
-              />
+              >
+                  <MenuItem value="Mechanical"  sx={menuItemTextStyles}>Mechanical</MenuItem>
+                  <MenuItem value="Electrical"  sx={menuItemTextStyles}>Electrical</MenuItem>
+              </TextField>
             </Grid>
 
             <Grid item xs={12} md={6}>
@@ -222,6 +274,7 @@ function EditInventory({ inventoryId, onInventoryUpdated, onClose }: EditInvento
 
             <Grid item xs={12} md={6}>
               <TextField
+               select
                 label="Unit"
                 name="unit"
                 value={inventoryData.unit}
@@ -229,13 +282,16 @@ function EditInventory({ inventoryId, onInventoryUpdated, onClose }: EditInvento
                 fullWidth
                 required
                 sx={inputStyles}
-              />
+              >
+                 <MenuItem value="PCS"  sx={menuItemTextStyles}>PCS</MenuItem>
+                 <MenuItem value="BOX"  sx={menuItemTextStyles}>BOX</MenuItem>
+              </TextField>
             </Grid>
 
             <Grid item xs={12} md={6}>
               <TextField
                 label="Unit Cost"
-                name="unitCost"
+                name="unit_cost"
                 value={inventoryData.unit_cost}
                 onChange={handleChange}
                 fullWidth

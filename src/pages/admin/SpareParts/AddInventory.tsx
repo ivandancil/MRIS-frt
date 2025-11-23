@@ -1,4 +1,4 @@
-import {
+  import {
   Box,
   TextField,
   Button,
@@ -59,7 +59,7 @@ function AddInventory({ onInventoryAdded, onClose }: AddInventoryProps) {
   const [supplier, setSupplier] = useState("");
   const [lastPurchased, setLastPurchased] = useState("");
   const [itemOptions, setItemOptions] = useState<any[]>([]);
-
+const [isExistingItem, setIsExistingItem] = useState(false);
 
   // State for errors and loading
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -102,14 +102,71 @@ const fetchItemByName = async (name: string) => {
   } 
 };
 
+// Generate a unique item code for new items
+const generateItemCode = () => {
+  const timestamp = Date.now(); // milliseconds
+  return `ITM-${timestamp.toString().slice(-6)}`; // last 6 digits
+};
 
 
 useEffect(() => {
-  const timer = setTimeout(() => {
-    fetchItemByName(itemName);
-  }, 300);
+  const matchedItem = itemOptions.find(
+    (item) =>
+      typeof item !== "string" &&
+      item.item_name.toLowerCase() === itemName.toLowerCase()
+  );
+
+  if (matchedItem) {
+    // Existing item → fill fields
+    setItemCode(matchedItem.item_code);
+    setCategory(matchedItem.category);
+    setUnit(matchedItem.unit);
+    setModel(matchedItem.model || "");
+    setLastPurchased(matchedItem.last_purchased || "");
+    setIsExistingItem(true);
+  } else if (itemName && !matchedItem) {
+    // New item → auto-generate code
+    setItemCode(generateItemCode());
+    setIsExistingItem(false);
+  }
+}, [itemName, itemOptions]);
+
+
+// Auto-fill if typed name matches an existing item
+useEffect(() => {
+  const timer = setTimeout(() => { fetchItemByName(itemName); }, 300);
+
+  const matchedItem = itemOptions.find(
+    (item) =>
+      typeof item !== "string" &&
+      item.item_name.toLowerCase() === itemName.toLowerCase()
+  );
+
+  if (matchedItem) {
+    setItemCode(matchedItem.item_code);
+    setCategory(matchedItem.category);
+    setUnit(matchedItem.unit);
+    setModel(matchedItem.model || "");
+    setLastPurchased(matchedItem.last_purchased || "");
+    // supplier is NOT set
+  }
+
   return () => clearTimeout(timer);
+}, [itemName, itemOptions]);
+
+useEffect(() => {
+  if (!itemName) {
+    setItemCode("");
+    setCategory("");
+    setUnit("");
+    setUnitCost("");
+    setSupplier("");
+    setModel("");
+    setLastPurchased("");
+    setIsExistingItem(false); // reset existing flag
+  }
 }, [itemName]);
+
 
   const handleAddInventory = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
@@ -222,44 +279,43 @@ useEffect(() => {
             error={!!fieldErrors.item_code}
             helperText={fieldErrors.item_code}
             sx={inputStyles}
+             InputProps={{ readOnly: !isExistingItem }} 
           />
         </Grid>
 
         {/* Item Name */}
         <Grid item xs={12} md={6}>
-  <Autocomplete
-    freeSolo
-    options={itemOptions}
-    getOptionLabel={(option) =>
-      typeof option === "string" ? option : option.item_name
-    }
-    onInputChange={(_, value) => setItemName(value)}
-    onChange={(_, value) => {
-      if (value && typeof value !== "string") {
-        // auto-fill fields
-        setItemName(value.item_name);
-        setItemCode(value.item_code);
-        setCategory(value.category);
-        setUnit(value.unit);
-        setUnitCost(String(value.unit_cost));
-        setModel(value.model || "");
-        setSupplier(value.supplier || "");
-        setLastPurchased(value.last_purchased || "");
-      }
-    }}
-    renderInput={(params) => (
-      <TextField
-        {...params}
-        label="Item Name"
-        fullWidth
-        autoComplete="off"
-        sx={inputStyles}
-        error={!!fieldErrors.item_name}
-        helperText={fieldErrors.item_name}
-      />
-    )}
-  />
-</Grid>
+          <Autocomplete
+            freeSolo
+            options={itemOptions}
+            getOptionLabel={(option) =>
+              typeof option === "string" ? option : option.item_name
+            }
+            onInputChange={(_, value) => setItemName(value)}
+            onChange={(_, value) => {
+              if (value && typeof value !== "string") {
+                // auto-fill fields
+                setItemName(value.item_name);
+                setItemCode(value.item_code);
+                setCategory(value.category);
+                setUnit(value.unit);
+                setModel(value.model || "");
+                setLastPurchased(value.last_purchased || "");
+              }
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Item Name"
+                fullWidth
+                autoComplete="off"
+                sx={inputStyles}
+                error={!!fieldErrors.item_name}
+                helperText={fieldErrors.item_name}
+              />
+            )}
+          />
+        </Grid>
 
 
         {/* Category */}

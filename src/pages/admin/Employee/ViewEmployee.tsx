@@ -205,14 +205,10 @@ function ViewEmployee({ open, onClose, employee, documents }: ViewEmployeeDialog
               </Typography>
               <Grid container spacing={{ xs: 1, sm: 2 }}>
                 <Grid item xs={12} sm={6}>
-                  <Typography sx={label}>Email:</Typography>
-                  <Typography sx={value}>{employee.email || "N/A"}</Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
                   <Typography sx={label}>Phone Number:</Typography>
                   <Typography sx={value}>{employee.phoneNumber || "N/A"}</Typography>
                 </Grid>
-                <Grid item xs={12}> {/* Full width for address */}
+                <Grid item xs={12} sm={6}> {/* Full width for address */}
                   <Typography sx={label}>Address:</Typography>
                   <Typography sx={value}>{employee.address || "N/A"}</Typography>
                 </Grid>
