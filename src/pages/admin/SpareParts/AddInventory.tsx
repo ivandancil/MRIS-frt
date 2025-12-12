@@ -317,21 +317,6 @@ useEffect(() => {
           />
         </Grid>
 
-
-        {/* Category */}
-        {/* <Grid item xs={12} md={4}>
-          <TextField
-            label="Category"
-            fullWidth
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            autoComplete="off"
-            error={!!fieldErrors.category}
-            helperText={fieldErrors.category}
-            sx={inputStyles}
-          />
-        </Grid> */}
-
          <Grid item xs={12} md={4} sx={inputStyles}>
             <TextField
               select
