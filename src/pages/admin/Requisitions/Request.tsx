@@ -14,16 +14,19 @@ import Header from "../../../components/Header";
 import { useEffect, useState } from "react";
 import { tokens } from "../../../theme";
 import AddIcon from "@mui/icons-material/Add";
-import AddRequest from "./AddRequest";
-import EditRequest from "./EditRequest";
-import { DataGrid } from "@mui/x-data-grid";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import { DataGrid } from "@mui/x-data-grid";
+
+import AddRequest from "./AddRequest";
+import EditRequest from "./EditRequest";
+import ViewRequest from "./ViewRequest"; // New reusable modal
 
 interface RequestRow {
   id: number;
   controlNumber: string;
+  date: string;
   itemName: string;
   qty: number;
   unit: string;
@@ -37,35 +40,28 @@ const Request = () => {
 
   const [tabValue, setTabValue] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [openAddDialog, setOpenAddDialog] = useState(false);
   const [rows, setRows] = useState<RequestRow[]>([]);
 
-  const [selectedItem, setSelectedItem] = useState<any>(null);
-  const [openViewDialog, setOpenViewDialog] = useState(false);
-
+  const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
-const [editRequestId, setEditRequestId] = useState<number | null>(null);
-
+  const [editRequestId, setEditRequestId] = useState<number | null>(null);
 
   const [deleteLoadingIds, setDeleteLoadingIds] = useState<number[]>([]);
 
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+
+  // MASTER LIST STATES
+  const [masterListRows, setMasterListRows] = useState<any[]>([]);
+  const [openViewDialog, setOpenViewDialog] = useState(false);
+  const [selectedRequestItems, setSelectedRequestItems] = useState<any[]>([]);
+  const [selectedControlNumber, setSelectedControlNumber] = useState<string>("");
 
   const dialogStyle = {
     fontSize: { xs: ".8rem", sm: ".9rem", md: "1rem" },
     fontFamily: "Poppins",
   };
 
-  // =====================================
-  // MASTER LIST STATES
-  // =====================================
-  const [masterListRows, setMasterListRows] = useState<any[]>([]);
-  const [openMasterView, setOpenMasterView] = useState(false);
-  const [selectedRequestItems, setSelectedRequestItems] = useState<any[]>([]);
-
-  // =====================================
-  // FETCH DAILY REQUEST ITEMS
-  // =====================================
+  // Fetch Daily Requests
   const fetchRequests = async () => {
     try {
       const response = await fetch("http://127.0.0.1:8000/api/requests");
@@ -75,10 +71,11 @@ const [editRequestId, setEditRequestId] = useState<number | null>(null);
         (req.items || []).map((item: any) => ({
           id: item.id,
           controlNumber: req.id.toString(),
-          date: item.date ?? "",   
+          date: item.date ?? "",
           itemName: item.item_name,
           qty: item.quantity,
           unit: item.unit,
+          unitPrice: item.unit_price, // <- match backend
           supplier: item.supplier,
           remarks: item.description ?? "",
         }))
@@ -92,9 +89,7 @@ const [editRequestId, setEditRequestId] = useState<number | null>(null);
     }
   };
 
-  // =====================================
-  // FETCH MASTER LIST
-  // =====================================
+  // Fetch Master List
   const fetchMasterList = async () => {
     try {
       const response = await fetch("http://127.0.0.1:8000/api/requests");
@@ -102,9 +97,7 @@ const [editRequestId, setEditRequestId] = useState<number | null>(null);
 
       const formatted = data.map((req: any) => ({
         id: req.id,
-        requestDate: req.created_at
-          ? req.created_at.substring(0, 10)
-          : "N/A",
+        requestDate: req.created_at ? req.created_at.substring(0, 10) : "N/A",
         totalItems: req.items ? req.items.length : 0,
         items: req.items || [],
       }));
@@ -120,44 +113,32 @@ const [editRequestId, setEditRequestId] = useState<number | null>(null);
     fetchMasterList();
   }, []);
 
-// DELETE SINGLE DAILY REQUEST ITEM
-const deleteItem = async (itemId: number) => {
-  if (!window.confirm("Are you sure you want to delete this item?")) return;
+  // Delete Daily Request Item
+  const deleteItem = async (itemId: number) => {
+    if (!window.confirm("Are you sure you want to delete this item?")) return;
 
-  try {
-    setDeleteLoadingIds((prev) => [...prev, itemId]);
+    try {
+      setDeleteLoadingIds((prev) => [...prev, itemId]);
 
-    const response = await fetch(
-      `http://127.0.0.1:8000/api/request-items/${itemId}`,
-      { method: "DELETE" }
-    );
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/request-items/${itemId}`,
+        { method: "DELETE" }
+      );
 
-    if (!response.ok) throw new Error("Failed to delete item");
+      if (!response.ok) throw new Error("Failed to delete item");
 
-    fetchRequests(); // refresh Daily Request
-    fetchMasterList(); // refresh Master List
-  } catch (error) {
-    console.error(error);
-  } finally {
-    setDeleteLoadingIds((prev) => prev.filter((id) => id !== itemId));
-  }
-};
-
-
-
-  // =====================================
-  // VIEW ITEM DETAILS (DAILY REQUEST)
-  // =====================================
-  const handleView = (item: RequestRow) => {
-    setSelectedItem(item);
-    setOpenViewDialog(true);
+      fetchRequests();
+      fetchMasterList();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setDeleteLoadingIds((prev) => prev.filter((id) => id !== itemId));
+    }
   };
 
-  // =====================================
-  // DATAGRID STYLES
-  // =====================================
+  // DataGrid Styles
   const gridStyles = {
-    "& .MuiDataGrid-root": { border: "none", boxShadow: "2" },
+    "& .MuiDataGrid-root": { border: "none" },
     "& .MuiDataGrid-cell": { borderBottom: "none" },
     "& .MuiDataGrid-columnHeader": {
       color: colors.primary[100],
@@ -176,29 +157,22 @@ const deleteItem = async (itemId: number) => {
     },
   };
 
-  // =====================================
-  // RENDER
-  // =====================================
   return (
     <Box m="20px">
       <Header title="Daily Spare Request" subtitle="Create Daily Requisitions" />
 
-      {/* TABS */}
+      {/* Tabs */}
       <Tabs
         value={tabValue}
         onChange={(_, newValue) => setTabValue(newValue)}
         textColor="inherit"
-        sx={{
-          mt: "20px",
-          fontFamily: "Poppins",
-          background: colors.grey[900],
-        }}
+        sx={{ mt: "20px", fontFamily: "Poppins", background: colors.grey[900] }}
       >
         <Tab label="Daily Request" />
         <Tab label="Master List (Requisitions)" />
       </Tabs>
 
-      {/* CREATE REQUEST BUTTON */}
+      {/* Create Request Button */}
       <Box display="flex" justifyContent="flex-end" mt={2}>
         <Button
           variant="contained"
@@ -215,9 +189,7 @@ const deleteItem = async (itemId: number) => {
         </Button>
       </Box>
 
-      {/* ==========================================================
-          TAB 1: DAILY REQUEST
-      =========================================================== */}
+      {/* TAB 1: Daily Request */}
       {tabValue === 0 && (
         <Box height="70vh" mt={2} sx={gridStyles}>
           <DataGrid
@@ -225,7 +197,7 @@ const deleteItem = async (itemId: number) => {
             loading={loading}
             getRowId={(row) => row.id}
             columns={[
-               { field: "date", headerName: "Date", flex: 1 },
+              { field: "date", headerName: "Date", flex: 1 },
               { field: "controlNumber", headerName: "Control #", flex: 1 },
               { field: "itemName", headerName: "Item Name", flex: 1 },
               { field: "qty", headerName: "Qty", flex: 0.5 },
@@ -237,17 +209,7 @@ const deleteItem = async (itemId: number) => {
                 headerName: "Actions",
                 flex: 1.5,
                 renderCell: (params) => (
-                <Box display="flex" gap={1} mt={1}>
-                    {/* <Button
-                       sx={{ textTransform: "none",
-                          color: colors.grey[900],
-                             fontSize: { xs: ".5rem", sm: ".6rem", md: ".8rem" }
-                             }}
-                        startIcon={<VisibilityIcon sx={{ fontSize: isSmallScreen ? '1rem' : 'inherit' }} />}
-                      onClick={() => handleView(params.row)}
-                    >
-                      View
-                    </Button> */}
+                  <Box display="flex" gap={1} mt={1}>
                     <Button
                       color="error"
                       sx={{ textTransform: "none" }}
@@ -259,7 +221,6 @@ const deleteItem = async (itemId: number) => {
                         ? "Deleting..."
                         : "Delete"}
                     </Button>
-
                   </Box>
                 ),
               },
@@ -268,9 +229,7 @@ const deleteItem = async (itemId: number) => {
         </Box>
       )}
 
-      {/* ==========================================================
-          TAB 2: MASTER LIST
-      =========================================================== */}
+      {/* TAB 2: Master List */}
       {tabValue === 1 && (
         <Box height="70vh" mt={2} sx={gridStyles}>
           <DataGrid
@@ -286,32 +245,43 @@ const deleteItem = async (itemId: number) => {
                 flex: 1.5,
                 renderCell: (params) => (
                   <Box display="flex" gap={1} mt={1}>
-                  <Button
-                     sx={{ textTransform: "none",
-                          color: colors.grey[900],
-                             fontSize: { xs: ".5rem", sm: ".6rem", md: ".8rem" }
-                             }}
-                startIcon={<VisibilityIcon sx={{ fontSize: isSmallScreen ? '1rem' : 'inherit' }} />}
-                    onClick={() => {
-                      setSelectedRequestItems(params.row.items);
-                      setOpenMasterView(true);
-                    }}
-                  >
-                    View 
-                  </Button>
-                  <Button
-                    sx={{ textTransform: "none",
-                          color: colors.grey[900],
-                             fontSize: { xs: ".5rem", sm: ".6rem", md: ".8rem" }
-                             }}
-                        startIcon={<EditIcon sx={{ fontSize: isSmallScreen ? '1rem' : 'inherit' }} />}
-                    onClick={() => {
-                      setEditRequestId(params.row.id);
-                      setOpenEditDialog(true);
-                    }}
-                  >
-                    Edit
-                </Button>
+                    <Button
+                      sx={{
+                        textTransform: "none",
+                        color: colors.grey[900],
+                        fontSize: { xs: ".5rem", sm: ".6rem", md: ".8rem" },
+                      }}
+                      startIcon={
+                        <VisibilityIcon
+                          sx={{ fontSize: isSmallScreen ? "1rem" : "inherit" }}
+                        />
+                      }
+                      onClick={() => {
+                        setSelectedRequestItems(params.row.items);
+                        setSelectedControlNumber(params.row.id.toString());
+                        setOpenViewDialog(true);
+                      }}
+                    >
+                      View
+                    </Button>
+                    <Button
+                      sx={{
+                        textTransform: "none",
+                        color: colors.grey[900],
+                        fontSize: { xs: ".5rem", sm: ".6rem", md: ".8rem" },
+                      }}
+                      startIcon={
+                        <EditIcon
+                          sx={{ fontSize: isSmallScreen ? "1rem" : "inherit" }}
+                        />
+                      }
+                      onClick={() => {
+                        setEditRequestId(params.row.id);
+                        setOpenEditDialog(true);
+                      }}
+                    >
+                      Edit
+                    </Button>
                   </Box>
                 ),
               },
@@ -320,7 +290,7 @@ const deleteItem = async (itemId: number) => {
         </Box>
       )}
 
-      {/* ADD REQUEST DIALOG */}
+      {/* Add Request Dialog */}
       <Dialog
         open={openAddDialog}
         onClose={() => setOpenAddDialog(false)}
@@ -337,62 +307,37 @@ const deleteItem = async (itemId: number) => {
             onClose={() => setOpenAddDialog(false)}
           />
         </DialogContent>
-       
       </Dialog>
 
-   
-
-
-      {/* MASTER LIST - VIEW ITEMS */}
+      {/* Edit Request Dialog */}
       <Dialog
-        open={openMasterView}
-        onClose={() => setOpenMasterView(false)}
+        open={openEditDialog}
+        onClose={() => setOpenEditDialog(false)}
         fullWidth
         maxWidth="md"
       >
-        <DialogTitle sx={dialogStyle}>Requested Items</DialogTitle>
+        <DialogTitle>Edit Request</DialogTitle>
         <DialogContent>
-          {selectedRequestItems.length === 0 ? (
-            <p>No items found.</p>
-          ) : (
-            selectedRequestItems.map((item: any, index: number) => (
-              <Box key={index} sx={{ mb: 2, p: 1, borderBottom: "1px solid #ccc" }}>
-                <strong>Item Name:</strong> {item.item_name} <br />
-                <strong>Quantity:</strong> {item.quantity} <br />
-                <strong>Unit:</strong> {item.unit} <br />
-                <strong>Description:</strong> {item.description}
-              </Box>
-            ))
+          {editRequestId && (
+            <EditRequest
+              requestId={editRequestId}
+              onUpdated={() => {
+                fetchRequests();
+                fetchMasterList();
+              }}
+              onClose={() => setOpenEditDialog(false)}
+            />
           )}
         </DialogContent>
-        <DialogActions>
-          <Button variant="contained" onClick={() => setOpenMasterView(false)}>
-            Close
-          </Button>
-        </DialogActions>
       </Dialog>
 
-         <Dialog
-  open={openEditDialog}
-  onClose={() => setOpenEditDialog(false)}
-  fullWidth
-  maxWidth="md"
->
-  <DialogTitle>Edit Request</DialogTitle>
-  <DialogContent>
-    {editRequestId && (
-      <EditRequest
-        requestId={editRequestId}
-        onUpdated={() => {
-          fetchRequests();
-          fetchMasterList();
-        }}
-        onClose={() => setOpenEditDialog(false)}
+      {/* View Request Dialog */}
+      <ViewRequest
+        open={openViewDialog}
+        onClose={() => setOpenViewDialog(false)}
+        controlNumber={selectedControlNumber}
+        items={selectedRequestItems}
       />
-    )}
-  </DialogContent>
- 
-</Dialog>
     </Box>
   );
 };

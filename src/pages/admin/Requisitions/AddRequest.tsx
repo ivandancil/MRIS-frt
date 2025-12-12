@@ -21,6 +21,7 @@ interface RequestItem {
 }
 
 const AddRequest = ({ onInventoryAdded, onClose }: AddRequestProps) => {
+  
   const [items, setItems] = useState<RequestItem[]>([
     {
       date: "",
@@ -34,33 +35,53 @@ const AddRequest = ({ onInventoryAdded, onClose }: AddRequestProps) => {
     },
   ]);
 
-  const handleItemChange = (index: number, field: string, value: string) => {
-    const updatedItems = [...items];
-    updatedItems[index] = { ...updatedItems[index], [field]: value };
+const handleItemChange = (index: number, field: string, value: string) => {
+  const updatedItems = [...items];
 
-    // Auto-calculate amount
-    const quantity = parseFloat(updatedItems[index].quantity) || 0;
-    const unitPrice = parseFloat(updatedItems[index].unitPrice) || 0;
-    updatedItems[index].amount = (quantity * unitPrice).toString();
+  // Update changed field
+  updatedItems[index] = { ...updatedItems[index], [field]: value };
 
-    setItems(updatedItems);
-  };
+  // If date edited in item 1 → update all items
+  if (field === "date" && index === 0) {
+    updatedItems.forEach((item, i) => {
+      if (i !== 0) item.date = value;
+    });
+  }
 
-  const addNewItem = () => {
-    setItems([
-      ...items,
-      {
-        date: "",
-        itemName: "",
-        quantity: "",
-        unit: "",
-        unitPrice: "",
-        amount: "",
-        supplier: "",
-        description: "",
-      },
-    ]);
-  };
+  // If supplier changed in item 1 → update all items
+  if (field === "supplier" && index === 0) {
+    updatedItems.forEach((item, i) => {
+      if (i !== 0) item.supplier = value;
+    });
+  }
+
+  // Auto-calc amount
+  const quantity = parseFloat(updatedItems[index].quantity) || 0;
+  const unitPrice = parseFloat(updatedItems[index].unitPrice) || 0;
+  updatedItems[index].amount = (quantity * unitPrice).toString();
+
+  setItems(updatedItems);
+};
+
+const addNewItem = () => {
+  const firstDate = items[0].date || ""; // get date of item 1
+  const firstSupplier = items[0].supplier || "";
+
+  setItems([
+    ...items,
+    {
+      date: firstDate,      // copy date from item 1
+      itemName: "",
+      quantity: "",
+      unit: "",
+      unitPrice: "",
+      amount: "",
+       supplier: firstSupplier, 
+      description: "",
+    },
+  ]);
+};
+
 
   const removeItem = (index: number) => {
     const updated = items.filter((_, i) => i !== index);
@@ -116,13 +137,17 @@ const AddRequest = ({ onInventoryAdded, onClose }: AddRequestProps) => {
 
           <Grid container spacing={2} mt={1}>
             <Grid item xs={12} md={6}>
-              <TextField
-                type="date"
-                fullWidth
-                value={item.date}
-                onChange={(e) => handleItemChange(index, "date", e.target.value)}
-              />
+             <TextField
+              type="date"
+              fullWidth
+              value={item.date}
+              onChange={(e) => handleItemChange(index, "date", e.target.value)}
+              disabled={index !== 0}   // <--- lock for items 2, 3, 4...
+            />
+
             </Grid>
+
+
 
             <Grid item xs={12} md={12}>
               <TextField
@@ -159,6 +184,7 @@ const AddRequest = ({ onInventoryAdded, onClose }: AddRequestProps) => {
               >
                   <MenuItem value="PCS" >PCS</MenuItem>
                   <MenuItem value="BOX" >BOX</MenuItem>
+                  <MenuItem value="SET" >SET</MenuItem>
                 </TextField>
             </Grid>
 
@@ -185,14 +211,14 @@ const AddRequest = ({ onInventoryAdded, onClose }: AddRequestProps) => {
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <TextField
-                label="Supplier"
-                fullWidth
-                value={item.supplier}
-                onChange={(e) =>
-                  handleItemChange(index, "supplier", e.target.value)
-                }
-              />
+             <TextField
+              label="Supplier"
+              fullWidth
+              value={item.supplier}
+              onChange={(e) => handleItemChange(index, "supplier", e.target.value)}
+              disabled={index !== 0}   // <--- Lock supplier after Item 1
+            />
+
             </Grid>
 
             <Grid item xs={12}>
