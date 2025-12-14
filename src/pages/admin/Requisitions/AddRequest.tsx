@@ -1,7 +1,8 @@
-import { Box, Button, TextField, Grid, IconButton, Typography, MenuItem } from "@mui/material";
+import { Box, Button, TextField, Grid, IconButton, Typography, MenuItem, useTheme } from "@mui/material";
 import { useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import { tokens } from "../../../theme";
 
 interface AddRequestProps {
   onInventoryAdded: () => void;
@@ -21,7 +22,29 @@ interface RequestItem {
 }
 
 const AddRequest = ({ onInventoryAdded, onClose }: AddRequestProps) => {
-  
+   const theme = useTheme();
+    const colors = tokens(theme.palette.mode);
+
+  const inputStyles = {
+    "& .MuiInputLabel-root": {
+      color: "black !important",
+      fontSize: { xs: ".7rem", sm: ".8rem", md: ".8rem" },
+      fontFamily: "Poppins",
+      [theme.breakpoints.down("sm")]: {
+        transform: "translate(14px, 8px) scale(1) !important",
+        "&.MuiInputLabel-shrink": {
+          transform: "translate(14px, -9px) scale(0.75) !important",
+        },
+      },
+    },
+    "& .MuiOutlinedInput-root fieldset": { borderColor: "black !important" },
+    "& .MuiInputBase-input": {
+      color: "black",
+      fontSize: { xs: ".7rem", sm: ".9rem", md: ".8rem" },
+      fontFamily: "Poppins",
+    },
+  };
+
   const [items, setItems] = useState<RequestItem[]>([
     {
       date: "",
@@ -76,7 +99,7 @@ const addNewItem = () => {
       unit: "",
       unitPrice: "",
       amount: "",
-       supplier: firstSupplier, 
+      supplier: firstSupplier, 
       description: "",
     },
   ]);
@@ -126,7 +149,7 @@ const addNewItem = () => {
           borderRadius="8px"
         >
           <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography fontWeight="bold">Item {index + 1}</Typography>
+            <Typography variant="h6" fontWeight="bold">Item {index + 1}</Typography>
 
             {items.length > 1 && (
               <IconButton onClick={() => removeItem(index)} color="error">
@@ -141,6 +164,7 @@ const addNewItem = () => {
               type="date"
               fullWidth
               value={item.date}
+              sx={inputStyles}
               onChange={(e) => handleItemChange(index, "date", e.target.value)}
               disabled={index !== 0}   // <--- lock for items 2, 3, 4...
             />
@@ -154,6 +178,7 @@ const addNewItem = () => {
                 label="Item Name"
                 fullWidth
                 value={item.itemName}
+                sx={inputStyles}
                 onChange={(e) =>
                   handleItemChange(index, "itemName", e.target.value)
                 }
@@ -166,6 +191,7 @@ const addNewItem = () => {
                 type="number"
                 fullWidth
                 value={item.quantity}
+                sx={inputStyles}
                 onChange={(e) =>
                   handleItemChange(index, "quantity", e.target.value)
                 }
@@ -180,6 +206,7 @@ const addNewItem = () => {
                 label="Unit"
                 fullWidth
                 value={item.unit}
+                sx={inputStyles}
                 onChange={(e) => handleItemChange(index, "unit", e.target.value)}
               >
                   <MenuItem value="PCS" >PCS</MenuItem>
@@ -193,6 +220,7 @@ const addNewItem = () => {
                 label="Unit Price"
                 fullWidth
                 value={item.unitPrice}
+                sx={inputStyles}
                 onChange={(e) =>
                   handleItemChange(index, "unitPrice", e.target.value)
                 }
@@ -204,6 +232,7 @@ const addNewItem = () => {
                 label="Amount"
                 fullWidth
                 value={item.amount}
+                sx={inputStyles}
                 onChange={(e) =>
                   handleItemChange(index, "amount", e.target.value)
                 }
@@ -215,6 +244,7 @@ const addNewItem = () => {
               label="Supplier"
               fullWidth
               value={item.supplier}
+              sx={inputStyles}
               onChange={(e) => handleItemChange(index, "supplier", e.target.value)}
               disabled={index !== 0}   // <--- Lock supplier after Item 1
             />
@@ -228,6 +258,7 @@ const addNewItem = () => {
                 multiline
                 rows={2}
                 value={item.description}
+                sx={inputStyles}
                 onChange={(e) =>
                   handleItemChange(index, "description", e.target.value)
                 }

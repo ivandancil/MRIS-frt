@@ -18,14 +18,16 @@ interface AddInventoryProps {
   onClose: () => void;
 }
 
+
+
 function AddInventory({ onInventoryAdded, onClose }: AddInventoryProps) {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
-  const inputStyles = {
+ const inputStyles = {
     "& .MuiInputLabel-root": {
       color: "black !important",
-      fontSize: { xs: ".7rem", sm: ".8rem", md: "1rem" },
+      fontSize: { xs: ".7rem", sm: ".8rem", md: ".8rem" },
       fontFamily: "Poppins",
       [theme.breakpoints.down("sm")]: {
         transform: "translate(14px, 8px) scale(1) !important",
@@ -37,7 +39,7 @@ function AddInventory({ onInventoryAdded, onClose }: AddInventoryProps) {
     "& .MuiOutlinedInput-root fieldset": { borderColor: "black !important" },
     "& .MuiInputBase-input": {
       color: "black",
-      fontSize: { xs: ".7rem", sm: ".9rem", md: "1.1rem" },
+      fontSize: { xs: ".7rem", sm: ".9rem", md: ".8rem" },
       fontFamily: "Poppins",
     },
   };
@@ -60,6 +62,8 @@ function AddInventory({ onInventoryAdded, onClose }: AddInventoryProps) {
   const [lastPurchased, setLastPurchased] = useState("");
   const [itemOptions, setItemOptions] = useState<any[]>([]);
 const [isExistingItem, setIsExistingItem] = useState(false);
+const [supplierOptions, setSupplierOptions] = useState<string[]>([]);
+
 
   // State for errors and loading
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -110,26 +114,35 @@ const generateItemCode = () => {
 
 
 useEffect(() => {
-  const matchedItem = itemOptions.find(
+  // Filter items matching the current item name
+  const matchedItems = itemOptions.filter(
     (item) =>
       typeof item !== "string" &&
       item.item_name.toLowerCase() === itemName.toLowerCase()
   );
 
-  if (matchedItem) {
-    // Existing item → fill fields
-    setItemCode(matchedItem.item_code);
-    setCategory(matchedItem.category);
-    setUnit(matchedItem.unit);
-    setModel(matchedItem.model || "");
-    setLastPurchased(matchedItem.last_purchased || "");
+  // Extract unique models and suppliers
+  const suppliers = matchedItems.map(item => item.supplier).filter(Boolean) as string[];
+  setSupplierOptions([...new Set(suppliers)]);
+
+  // Check exact match (name + model + supplier)
+  const exactMatch = matchedItems.find(item =>
+    (model ? item.model?.toLowerCase() === model.toLowerCase() : true) &&
+    (supplier ? item.supplier?.toLowerCase() === supplier.toLowerCase() : true)
+  );
+
+  if (exactMatch) {
+    setItemCode(exactMatch.item_code);
+    setCategory(exactMatch.category);
+    setUnit(exactMatch.unit);
+    setLastPurchased(exactMatch.last_purchased || "");
     setIsExistingItem(true);
-  } else if (itemName && !matchedItem) {
-    // New item → auto-generate code
-    setItemCode(generateItemCode());
+  } else {
     setIsExistingItem(false);
+    setItemCode(generateItemCode());
   }
-}, [itemName, itemOptions]);
+}, [itemName, model, supplier, itemOptions]);
+
 
 
 // Auto-fill if typed name matches an existing item
@@ -139,7 +152,8 @@ useEffect(() => {
   const matchedItem = itemOptions.find(
     (item) =>
       typeof item !== "string" &&
-      item.item_name.toLowerCase() === itemName.toLowerCase()
+      item.item_name.toLowerCase() === itemName.toLowerCase() &&
+      (model ? item.model?.toLowerCase() === model.toLowerCase() : true)
   );
 
   if (matchedItem) {
@@ -148,11 +162,11 @@ useEffect(() => {
     setUnit(matchedItem.unit);
     setModel(matchedItem.model || "");
     setLastPurchased(matchedItem.last_purchased || "");
-    // supplier is NOT set
   }
 
   return () => clearTimeout(timer);
-}, [itemName, itemOptions]);
+}, [itemName, model, itemOptions]);
+
 
 useEffect(() => {
   if (!itemName) {
@@ -265,9 +279,20 @@ useEffect(() => {
     ]
   );
 
-  return (
-    <form onSubmit={handleAddInventory}>
-      <Grid container spacing={2} marginTop={0.8}>
+return (
+  <form onSubmit={handleAddInventory}>
+    <Box
+      p={2}
+      mt={1}
+      border="1px solid #ccc"
+      borderRadius="8px"
+    >
+      {/* Header */}
+      <Typography variant="h6" fontWeight="bold" mb={2}>
+        Inventory Item Details
+      </Typography>
+
+      <Grid container spacing={2}>
         {/* Item Code */}
         <Grid item xs={12} md={6}>
           <TextField
@@ -279,12 +304,12 @@ useEffect(() => {
             error={!!fieldErrors.item_code}
             helperText={fieldErrors.item_code}
             sx={inputStyles}
-             InputProps={{ readOnly: !isExistingItem }} 
+            InputProps={{ readOnly: !isExistingItem }}
           />
         </Grid>
 
         {/* Item Name */}
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={12}>
           <Autocomplete
             freeSolo
             options={itemOptions}
@@ -294,7 +319,6 @@ useEffect(() => {
             onInputChange={(_, value) => setItemName(value)}
             onChange={(_, value) => {
               if (value && typeof value !== "string") {
-                // auto-fill fields
                 setItemName(value.item_name);
                 setItemCode(value.item_code);
                 setCategory(value.category);
@@ -317,25 +341,26 @@ useEffect(() => {
           />
         </Grid>
 
-         <Grid item xs={12} md={4} sx={inputStyles}>
-            <TextField
-              select
-              label="Category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              fullWidth
-              error={!!fieldErrors.category}
-              helperText={fieldErrors.category}
-            
+        {/* Category */}
+        <Grid item xs={12} md={6} sx={inputStyles}>
+          <TextField
+            select
+            label="Category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            fullWidth
+            error={!!fieldErrors.category}
+            helperText={fieldErrors.category}
           >
-              <MenuItem value="Mechanical"  sx={menuItemTextStyles}>Mechanical</MenuItem>
-              <MenuItem value="Electrical"  sx={menuItemTextStyles}>Electrical</MenuItem>
-              
-            </TextField>
-          </Grid>
+            <MenuItem value="Mechanical" sx={menuItemTextStyles}>Mechanical</MenuItem>
+            <MenuItem value="Electrical" sx={menuItemTextStyles}>Electrical</MenuItem>
+            <MenuItem value="Welding" sx={menuItemTextStyles}>Welding</MenuItem>
+            <MenuItem value="Shop Used" sx={menuItemTextStyles}>Shop Used</MenuItem>
+          </TextField>
+        </Grid>
 
         {/* Model */}
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={6}>
           <TextField
             label="Model"
             fullWidth
@@ -364,24 +389,24 @@ useEffect(() => {
         </Grid>
 
         {/* Unit */}
-         <Grid item xs={12} md={4} sx={inputStyles}>
-            <TextField
-              select
-              label="Unit"
-              value={unit}
-              onChange={(e) => setUnit(e.target.value)}
-              fullWidth
-              error={!!fieldErrors.unit}
-             helperText={fieldErrors.unit}
-          
+        <Grid item xs={12} md={4} sx={inputStyles}>
+          <TextField
+            select
+            label="Unit"
+            value={unit}
+            onChange={(e) => setUnit(e.target.value)}
+            fullWidth
+            error={!!fieldErrors.unit}
+            helperText={fieldErrors.unit}
           >
-              <MenuItem value="PCS"  sx={menuItemTextStyles}>PCS</MenuItem>
-              <MenuItem value="BOX"  sx={menuItemTextStyles}>BOX</MenuItem>
-            </TextField>
-          </Grid>
+            <MenuItem value="PCS" sx={menuItemTextStyles}>PCS</MenuItem>
+            <MenuItem value="BOX" sx={menuItemTextStyles}>BOX</MenuItem>
+            <MenuItem value="SET" sx={menuItemTextStyles}>SET</MenuItem>
+          </TextField>
+        </Grid>
 
         {/* Unit Cost */}
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={4}>
           <TextField
             label="Unit Cost"
             type="number"
@@ -396,18 +421,27 @@ useEffect(() => {
         </Grid>
 
         {/* Supplier */}
-        <Grid item xs={12} md={6}>
-          <TextField
-            label="Supplier"
-            fullWidth
-            value={supplier}
-            onChange={(e) => setSupplier(e.target.value)}
-            autoComplete="off"
-            error={!!fieldErrors.supplier}
-            helperText={fieldErrors.supplier}
-            sx={inputStyles}
-          />
-        </Grid>
+<Grid item xs={12} md={6}>
+  <Autocomplete
+    freeSolo
+    options={supplierOptions}
+    value={supplier}
+    onInputChange={(_, value) => setSupplier(value)}
+    onChange={(_, value) => setSupplier(value || "")}
+    renderInput={(params) => (
+      <TextField
+        {...params}
+        label="Supplier"
+        fullWidth
+        autoComplete="off"
+        sx={inputStyles}
+        error={!!fieldErrors.supplier}
+        helperText={fieldErrors.supplier}
+      />
+    )}
+  />
+</Grid>
+
 
         {/* Last Purchased */}
         <Grid item xs={12} md={6}>
@@ -423,50 +457,48 @@ useEffect(() => {
             sx={inputStyles}
           />
         </Grid>
-        
       </Grid>
+    </Box>
 
-      {/* General Error */}
-      {generalError && (
-        <Typography color="error" mt={1}>
-          {generalError}
-        </Typography>
-      )}
+    {/* Error */}
+    {generalError && (
+      <Typography color="error" mt={1}>
+        {generalError}
+      </Typography>
+    )}
+    
 
-      <Box display="flex" justifyContent="space-between" mt={2}>
-        <Button
-          type="submit"
-          variant="contained"
-          fullWidth
-          disabled={loading}
-          sx={{
-            fontSize: { xs: ".7rem", sm: ".8rem", md: "1rem" },
-            fontFamily: "Poppins",
-            background: `${colors.primary[400]}`,
-            color: "black",
-            "&:hover": { background: `${colors.grey[900]}` },
-          }}
-        >
-          {loading ? "Adding..." : "Add Item"}
-        </Button>
-      </Box>
-
-      {/* Success Snackbar */}
-      <Snackbar
-        open={success}
-        autoHideDuration={3000}
-        onClose={() => setSuccess(false)}
+    {/* Actions */}
+    <Box display="flex" justifyContent="flex-end" gap={2} mt={3}>
+       <Button variant="outlined" onClick={onClose}>
+          Cancel
+      </Button>
+      <Button
+        type="submit"
+        variant="contained"
+        disabled={loading}
       >
-        <Alert
-          onClose={() => setSuccess(false)}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
-          Item added successfully!
-        </Alert>
-      </Snackbar>
-    </form>
-  );
+        {loading ? "Adding..." : "Add Item"}
+      </Button>
+    </Box>
+
+    {/* Success Snackbar */}
+    <Snackbar
+      open={success}
+      autoHideDuration={3000}
+      onClose={() => setSuccess(false)}
+    >
+      <Alert
+        onClose={() => setSuccess(false)}
+        severity="success"
+        sx={{ width: "100%" }}
+      >
+        Item added successfully!
+      </Alert>
+    </Snackbar>
+  </form>
+);
+
 }
 
 export default AddInventory;

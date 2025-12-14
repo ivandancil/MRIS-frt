@@ -466,10 +466,7 @@ function SpareInventory() {
           
           />
         </DialogContent>
-        <DialogActions>
-          <Button  onClick={() => setOpenAddDialog(false)} color="primary" variant="contained" autoFocus
-             sx={{ fontFamily:"Poppins",  fontSize: { xs: ".6rem", sm: ".7rem", md: ".8rem" }, }}>Close</Button>
-        </DialogActions>
+     
       </Dialog>
 
       <Dialog
