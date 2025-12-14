@@ -337,8 +337,8 @@ function SpareInventory() {
 
       {/* Master List Tab */}
       {tabValue === 1 && (
-        <Box>
-          <Typography variant="h5" mt={2} mb={2} fontFamily="Poppins">
+        <Box >
+          <Typography variant="h5"  fontFamily="Poppins">
             Master List
           </Typography>
 

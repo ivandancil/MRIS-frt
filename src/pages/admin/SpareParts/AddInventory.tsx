@@ -422,26 +422,26 @@ return (
         </Grid>
 
         {/* Supplier */}
-<Grid item xs={12} md={6}>
-  <Autocomplete
-    freeSolo
-    options={supplierOptions}
-    value={supplier}
-    onInputChange={(_, value) => setSupplier(value)}
-    onChange={(_, value) => setSupplier(value || "")}
-    renderInput={(params) => (
-      <TextField
-        {...params}
-        label="Supplier"
-        fullWidth
-        autoComplete="off"
-        sx={inputStyles}
-        error={!!fieldErrors.supplier}
-        helperText={fieldErrors.supplier}
-      />
-    )}
-  />
-</Grid>
+        <Grid item xs={12} md={6}>
+          <Autocomplete
+            freeSolo
+            options={supplierOptions}
+            value={supplier}
+            onInputChange={(_, value) => setSupplier(value)}
+            onChange={(_, value) => setSupplier(value || "")}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Supplier"
+                fullWidth
+                autoComplete="off"
+                sx={inputStyles}
+                error={!!fieldErrors.supplier}
+                helperText={fieldErrors.supplier}
+              />
+            )}
+          />
+        </Grid>
 
 
         {/* Last Purchased */}

@@ -69,51 +69,54 @@ const Request = () => {
   };
 
   // Fetch Daily Requests
-  const fetchRequests = async () => {
-    try {
-      const response = await fetch("http://127.0.0.1:8000/api/requests");
-      const data = await response.json();
+const fetchRequests = async () => {
+  try {
+    const response = await fetch("http://127.0.0.1:8000/api/requests");
+    const data = await response.json();
 
-      const formattedRows: RequestRow[] = data.flatMap((req: any) =>
-        (req.items || []).map((item: any) => ({
-          id: item.id,
-          controlNumber: req.id.toString(),
-          date: item.date ?? "",
-          itemName: item.item_name,
-          qty: item.quantity,
-          unit: item.unit,
-          unitPrice: item.unit_price, // <- match backend
-          supplier: item.supplier,
-          remarks: item.description ?? "",
-        }))
-      );
+    const formattedRows: RequestRow[] = data.flatMap((req: any) =>
+      (req.items || []).map((item: any) => ({
+        id: item.id,
+        controlNumber: `REQ-${req.id.toString().padStart(2, "0")}`, // same for all items in request
+        date: item.date ?? "",
+        itemName: item.item_name,
+        qty: item.quantity,
+        unit: item.unit,
+        unitPrice: item.unit_price,
+        supplier: item.supplier,
+        remarks: item.description ?? "",
+      }))
+    );
 
-      setRows(formattedRows);
-      setLoading(false);
-    } catch (error) {
-      console.error("Failed to load requests:", error);
-      setLoading(false);
-    }
-  };
+    setRows(formattedRows);
+    setLoading(false);
+  } catch (error) {
+    console.error("Failed to load requests:", error);
+    setLoading(false);
+  }
+};
 
-  // Fetch Master List
-  const fetchMasterList = async () => {
-    try {
-      const response = await fetch("http://127.0.0.1:8000/api/requests");
-      const data = await response.json();
 
-      const formatted = data.map((req: any) => ({
-        id: req.id,
-        requestDate: req.created_at ? req.created_at.substring(0, 10) : "N/A",
-        totalItems: req.items ? req.items.length : 0,
-        items: req.items || [],
-      }));
+// Fetch Master List
+const fetchMasterList = async () => {
+  try {
+    const response = await fetch("http://127.0.0.1:8000/api/requests");
+    const data = await response.json();
 
-      setMasterListRows(formatted);
-    } catch (error) {
-      console.error("Error fetching master list:", error);
-    }
-  };
+    const formatted = data.map((req: any) => ({
+      id: req.id, // internal ID for DataGrid
+      controlNumber: `REQ-${req.id.toString().padStart(2, "0")}`, // same as Daily Request
+      requestDate: req.created_at ? req.created_at.substring(0, 10) : "N/A",
+      totalItems: req.items ? req.items.length : 0,
+      items: req.items || [],
+    }));
+
+    setMasterListRows(formatted);
+  } catch (error) {
+    console.error("Error fetching master list:", error);
+  }
+};
+
 
   useEffect(() => {
     fetchRequests();
@@ -207,13 +210,20 @@ const Request = () => {
         <Tab label="Master List (Requisitions)" />
       </Tabs>
 
-      {/* Create Request Button */}
+
+      {/* TAB 1: Daily Request */}
+      {tabValue === 0 && (
+        <Box>
+
+          {/* Create Request Button */}
+
       <Box display="flex" justifyContent="flex-end" mt={2}>
         <Button
           variant="contained"
           sx={{
             background: colors.primary[400],
             color: "black",
+             "&:hover": { background: colors.grey[900] },
             textTransform: "none",
             fontFamily: "Poppins",
           }}
@@ -223,9 +233,6 @@ const Request = () => {
           Create Request
         </Button>
       </Box>
-
-      {/* TAB 1: Daily Request */}
-      {tabValue === 0 && (
         <Box height="70vh" mt={2} sx={gridStyles}>
           <DataGrid
             rows={filteredRows}
@@ -276,6 +283,7 @@ const Request = () => {
             ]}
           />
         </Box>
+        </Box>
       )}
 
       {/* TAB 2: Master List */}
@@ -285,7 +293,7 @@ const Request = () => {
             rows={filteredMasterListRows}
             getRowId={(row) => row.id}
             columns={[
-              { field: "id", headerName: "Control #", flex: 1 },
+              { field: "controlNumber", headerName: "Control #", flex: 1 },
               { field: "requestDate", headerName: "Date", flex: 1 },
               { field: "totalItems", headerName: "Total Items", flex: 1 },
               {

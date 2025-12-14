@@ -143,9 +143,9 @@ function Sidebar({ role, isCollapsed, toggleSidebar }: SidebarProps) {
                     alignItems: "center" 
                   }}
                 >
-                  <img  src={ DepedLogo } alt="Logo" style={{ width: 30, height: 30, marginTop: "20px" }} />
-                  <span style={{ fontSize: "12px", marginTop: "2px", color: colors.grey[100] }}>
-                    DepEd
+                  {/* <img  src={ DepedLogo } alt="Logo" style={{ width: 30, height: 30, marginTop: "20px" }} /> */}
+                  <span style={{ fontWeight: "700", fontSize: "13px", marginTop: "2px", color: colors.grey[100] }}>
+                    Motorpool
                   </span>
                 </div>
               ) : undefined
@@ -165,7 +165,7 @@ function Sidebar({ role, isCollapsed, toggleSidebar }: SidebarProps) {
                 >
                   RM_Motorpol
                 </Typography>
-              <img
+              {/* <img
                 src={ DepedLogo }
                 alt="DepEd Logo"
                 style={{
@@ -174,7 +174,7 @@ function Sidebar({ role, isCollapsed, toggleSidebar }: SidebarProps) {
                   margin: "none",
                   transition: "width 0.3s ease-in-out",  
                 }}
-              />
+              /> */}
               
             {/* <MenuOutlinedIcon
               style={{

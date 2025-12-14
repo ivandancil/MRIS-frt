@@ -98,8 +98,8 @@ const Dashboard = () => {
     },
     {
       title: loading ? "Loading..." : users.length.toString(),
-      subtitle: "Motorpol Mechanic",
-      icon: <PersonAddAltIcon sx={{ fontSize: { xs: 36, sm: 38, md: 40 }, color: "#2ecc71" }} />,
+      subtitle: "Requisitions",
+      icon: <InsertDriveFileIcon sx={{ fontSize: { xs: 36, sm: 38, md: 40 }, color: "#2ecc71" }} />,
     },
     {
       title: loading ? "Loading..." : users.length.toString(),
