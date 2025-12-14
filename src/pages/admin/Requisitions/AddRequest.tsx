@@ -210,6 +210,7 @@ const addNewItem = () => {
                   <MenuItem value="PCS" >PCS</MenuItem>
                   <MenuItem value="BOX" >BOX</MenuItem>
                   <MenuItem value="SET" >SET</MenuItem>
+                  <MenuItem value="ROLL" >ROLL</MenuItem>
                 </TextField>
             </Grid>
 

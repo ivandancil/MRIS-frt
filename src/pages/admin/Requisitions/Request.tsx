@@ -21,6 +21,8 @@ import { DataGrid } from "@mui/x-data-grid";
 import AddRequest from "./AddRequest";
 import EditRequest from "./EditRequest";
 import ViewRequest from "./ViewRequest"; // New reusable modal
+import { useSearch } from "../../../components/SearchContext";
+import ViewDailyRequest from "./ViewDailyRequest";
 
 interface RequestRow {
   id: number;
@@ -49,11 +51,17 @@ const Request = () => {
 
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
+  const [openViewDaily, setOpenViewDaily] = useState(false);
+  const [selectedDailyItem, setSelectedDailyItem] = useState<any>(null);
+
+
   // MASTER LIST STATES
   const [masterListRows, setMasterListRows] = useState<any[]>([]);
   const [openViewDialog, setOpenViewDialog] = useState(false);
   const [selectedRequestItems, setSelectedRequestItems] = useState<any[]>([]);
   const [selectedControlNumber, setSelectedControlNumber] = useState<string>("");
+
+  const { searchTerm } = useSearch();
 
   const dialogStyle = {
     fontSize: { xs: ".8rem", sm: ".9rem", md: "1rem" },
@@ -112,6 +120,8 @@ const Request = () => {
     fetchMasterList();
   }, []);
 
+
+
   // Delete Daily Request Item
   const deleteItem = async (itemId: number) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
@@ -156,6 +166,32 @@ const Request = () => {
     },
   };
 
+      const normalizedSearch = searchTerm?.toLowerCase() ?? "";
+
+      const filteredRows = rows.filter((row) =>
+        [
+          row.controlNumber,
+          row.itemName,
+          row.unit,
+          row.supplier,
+          row.remarks,
+        ].some((field) =>
+          field?.toString().toLowerCase().includes(normalizedSearch)
+        )
+      );
+
+      const filteredMasterListRows = masterListRows.filter((row) =>
+  [
+          row.id?.toString(),
+          row.requestDate,
+          row.totalItems?.toString(),
+        ].some((field) =>
+          field?.toLowerCase().includes(normalizedSearch)
+        )
+      );
+
+
+
   return (
     <Box m="20px">
       <Header title="Daily Spare Request" subtitle="Create Daily Requisitions" />
@@ -192,23 +228,37 @@ const Request = () => {
       {tabValue === 0 && (
         <Box height="70vh" mt={2} sx={gridStyles}>
           <DataGrid
-            rows={rows}
+            rows={filteredRows}
             loading={loading}
             getRowId={(row) => row.id}
             columns={[
               { field: "date", headerName: "Date", flex: 1 },
-              { field: "controlNumber", headerName: "Control #", flex: 1 },
-              { field: "itemName", headerName: "Item Name", flex: 1 },
-              { field: "qty", headerName: "Qty", flex: 0.5 },
-              { field: "unit", headerName: "Unit", flex: 1 },
+              { field: "controlNumber", headerName: "Control #", flex: .8 },
+              { field: "itemName", headerName: "Item Name", flex: 1.7 },
               { field: "supplier", headerName: "Supplier", flex: 1 },
               { field: "remarks", headerName: "Remarks", flex: 1.5 },
               {
                 field: "actions",
                 headerName: "Actions",
-                flex: 1.5,
+                flex: 1,
                 renderCell: (params) => (
                   <Box display="flex" gap={1} mt={1}>
+                    {/* View Button */}
+              <Button
+                sx={{
+                  textTransform: "none",
+                  color: colors.grey[900],
+                  fontSize: { xs: ".5rem", sm: ".6rem", md: ".8rem" },
+                }}
+                startIcon={<VisibilityIcon />}
+                onClick={() => {
+                  setSelectedDailyItem(params.row);
+                  setOpenViewDaily(true);
+                }}
+              >
+                View
+              </Button>
+
                     <Button
                       color="error"
                       sx={{ textTransform: "none" }}
@@ -232,7 +282,7 @@ const Request = () => {
       {tabValue === 1 && (
         <Box height="70vh" mt={2} sx={gridStyles}>
           <DataGrid
-            rows={masterListRows}
+            rows={filteredMasterListRows}
             getRowId={(row) => row.id}
             columns={[
               { field: "id", headerName: "Control #", flex: 1 },
@@ -337,6 +387,14 @@ const Request = () => {
         controlNumber={selectedControlNumber}
         items={selectedRequestItems}
       />
+
+      <ViewDailyRequest
+      open={openViewDaily}
+      onClose={() => setOpenViewDaily(false)}
+      item={selectedDailyItem}
+    />
+
+      
     </Box>
   );
 };

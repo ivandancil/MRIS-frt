@@ -402,6 +402,7 @@ return (
             <MenuItem value="PCS" sx={menuItemTextStyles}>PCS</MenuItem>
             <MenuItem value="BOX" sx={menuItemTextStyles}>BOX</MenuItem>
             <MenuItem value="SET" sx={menuItemTextStyles}>SET</MenuItem>
+            <MenuItem value="ROLL" sx={menuItemTextStyles}>ROLL</MenuItem>
           </TextField>
         </Grid>
 

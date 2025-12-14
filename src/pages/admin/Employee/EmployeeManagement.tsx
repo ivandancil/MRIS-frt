@@ -132,15 +132,19 @@ import { tokens } from "../../../theme";
       
     };
 
-    // Filter employees based on search term
-    const filteredEmployees = employees.filter(
-      (employee) =>
-        employee.firstname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        employee.lastname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        employee.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        employee.employeeID.toLowerCase().includes(searchTerm.toLowerCase())
+    const normalizedSearch = searchTerm?.toLowerCase() ?? "";
+
+    const filteredEmployees = employees.filter((employee) =>
+      [
+        employee.firstname,
+        employee.lastname,
+        employee.email,
+        employee.employeeID,
+      ].some(
+        (field) => field?.toLowerCase().includes(normalizedSearch)
+      )
     );
-    
+
     const mockDocuments = [
       {
         documentName: "Personal Data Sheet",
