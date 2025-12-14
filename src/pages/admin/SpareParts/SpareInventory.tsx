@@ -59,7 +59,7 @@ function SpareInventory() {
 
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [_, setError] = useState("");
 
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -70,7 +70,6 @@ function SpareInventory() {
 
   const editDialogRef = useRef<HTMLButtonElement>(null);
 
-      const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
 
   const [deleteLoadingIds, setDeleteLoadingIds] = useState<number[]>([]);
   const [tabValue, setTabValue] = useState(0); // 0: Daily Purchases, 1: Master List
