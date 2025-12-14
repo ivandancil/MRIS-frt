@@ -171,8 +171,6 @@ const addNewItem = () => {
 
             </Grid>
 
-
-
             <Grid item xs={12} md={12}>
               <TextField
                 label="Item Name"
