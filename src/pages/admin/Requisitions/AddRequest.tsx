@@ -28,7 +28,7 @@ const AddRequest = ({ onInventoryAdded, onClose }: AddRequestProps) => {
   const inputStyles = {
     "& .MuiInputLabel-root": {
       color: "black !important",
-      fontSize: { xs: ".7rem", sm: ".8rem", md: ".8rem" },
+      fontSize: { xs: ".7rem", sm: ".8rem", md: ".9rem" },
       fontFamily: "Poppins",
       [theme.breakpoints.down("sm")]: {
         transform: "translate(14px, 8px) scale(1) !important",
@@ -40,7 +40,7 @@ const AddRequest = ({ onInventoryAdded, onClose }: AddRequestProps) => {
     "& .MuiOutlinedInput-root fieldset": { borderColor: "black !important" },
     "& .MuiInputBase-input": {
       color: "black",
-      fontSize: { xs: ".7rem", sm: ".9rem", md: ".8rem" },
+      fontSize: { xs: ".7rem", sm: ".9rem", md: ".9rem" },
       fontFamily: "Poppins",
     },
   };
@@ -149,7 +149,7 @@ const addNewItem = () => {
           borderRadius="8px"
         >
           <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6" fontWeight="bold">Item {index + 1}</Typography>
+            <Typography variant="h5" fontWeight="bold">Item {index + 1}</Typography>
 
             {items.length > 1 && (
               <IconButton onClick={() => removeItem(index)} color="error">
@@ -252,7 +252,7 @@ const addNewItem = () => {
 
             <Grid item xs={12}>
               <TextField
-                label="Description / Remarks"
+                label="Remarks"
                 fullWidth
                 multiline
                 rows={2}

@@ -11,46 +11,25 @@
     const theme = useTheme();
           const colors = tokens(theme.palette.mode);
 
-          // Styles: Placeholder turns white on hover!
-            const inputStyles = {
-          
-                "& .MuiInputLabel-root": {
-                  color: "black !important",
-                    fontSize: { xs: ".7rem", sm: ".8rem", md: "1rem" },
-                    fontFamily: "Poppins",
-                  // Adjust label position for smaller height on xs screens
-                  [theme.breakpoints.down('sm')]: {
-                    transform: 'translate(14px, 8px) scale(1) !important', // Default position on xs
-                    '&.MuiInputLabel-shrink': {
-                      transform: 'translate(14px, -9px) scale(0.75) !important', // Shrunk position on xs
-                    },
-                  },
-                },
-                "& .MuiOutlinedInput-root fieldset": { borderColor: "black !important", borderWidth: 1 },
-                "& .MuiInputBase-input": {
-                  color: "black",
-                    fontSize: { xs: ".7rem", sm: ".9rem", md: "1.1rem" },
-                    fontFamily: "Poppins",
-                  // Reduce padding/height only on extra-small screens
-                  [theme.breakpoints.down('sm')]: {
-                    paddingTop: '8px', // Smaller top padding for xs
-                    paddingBottom: '8px', // Smaller bottom padding for xs
-                    // If you use start/end adornments, adjust their padding too
-                    '&.MuiInputBase-inputAdornedStart': {
-                      paddingLeft: '8px',
-                    },
-                    '&.MuiInputBase-inputAdornedEnd': {
-                      paddingRight: '8px',
-                    },
-                  },
-                  // Default padding/height for sm and up (Material-UI default)
-                  [theme.breakpoints.up('sm')]: {
-                    paddingTop: '16.5px', // Standard Material-UI padding-top
-                    paddingBottom: '16.5px', // Standard Material-UI padding-bottom
-                    height: 'auto', // Ensure height is flexible
-                  }
-                },
-              }
+  const inputStyles = {
+    "& .MuiInputLabel-root": {
+      color: "black !important",
+      fontSize: { xs: ".7rem", sm: ".8rem", md: ".9rem" },
+      fontFamily: "Poppins",
+      [theme.breakpoints.down("sm")]: {
+        transform: "translate(14px, 8px) scale(1) !important",
+        "&.MuiInputLabel-shrink": {
+          transform: "translate(14px, -9px) scale(0.75) !important",
+        },
+      },
+    },
+    "& .MuiOutlinedInput-root fieldset": { borderColor: "black !important" },
+    "& .MuiInputBase-input": {
+      color: "black",
+      fontSize: { xs: ".7rem", sm: ".9rem", md: ".9rem" },
+      fontFamily: "Poppins",
+    },
+  };
 
             // NEW: Reusable style for MenuItems
     const menuItemTextStyles = {
@@ -160,7 +139,7 @@
         <Grid container spacing={2} marginTop={.8}>
           <Grid item xs={12} md={6}>
             <TextField
-              label="Employee ID (Auto)"
+              label="Employee ID "
               fullWidth
               value={employeeID}
               InputProps={{ readOnly: true }}
@@ -170,7 +149,7 @@
           {/* <Grid item xs={12} md={6}>
             <TextField label="Job Position" fullWidth value={jobPosition} onChange={(e) => setJobPosition(e.target.value)} autoComplete="off" sx={inputStyles} />
           </Grid> */}
-          <Grid item xs={12} md={6} sx={inputStyles}>
+          <Grid item xs={12} md={10} sx={inputStyles}>
             <TextField
                 select
                 label="Job Position"
@@ -180,7 +159,7 @@
                 variant="outlined"
               >
                 <MenuItem value="Encoder" sx={menuItemTextStyles}>Encoder</MenuItem>
-                <MenuItem value="Helper" sx={menuItemTextStyles}>Helper</MenuItem>
+                <MenuItem value="Helper-Mechanic" sx={menuItemTextStyles}>Helper-Mechanic</MenuItem>
                 <MenuItem value="Mechanic" sx={menuItemTextStyles}>Mechanic</MenuItem>
                 <MenuItem value="Welder" sx={menuItemTextStyles}>Welder</MenuItem>
                 <MenuItem value="Supervisor/Mechanic" sx={menuItemTextStyles}>Supervisor/Mechanic</MenuItem>
@@ -197,7 +176,7 @@
           <Grid item xs={12} md={4}>
             <TextField label="Middle Name" fullWidth value={middlename} onChange={(e) => setMiddlename(e.target.value)} autoComplete="off" sx={inputStyles} />
           </Grid>
-          <Grid item xs={12} md={6} sx={inputStyles}>
+          <Grid item xs={12} md={8} sx={inputStyles}>
           <TextField
                 select
                 label="Sex"

@@ -27,7 +27,7 @@ function AddInventory({ onInventoryAdded, onClose }: AddInventoryProps) {
  const inputStyles = {
     "& .MuiInputLabel-root": {
       color: "black !important",
-      fontSize: { xs: ".7rem", sm: ".8rem", md: ".8rem" },
+      fontSize: { xs: ".7rem", sm: ".8rem", md: ".9rem" },
       fontFamily: "Poppins",
       [theme.breakpoints.down("sm")]: {
         transform: "translate(14px, 8px) scale(1) !important",
@@ -39,7 +39,7 @@ function AddInventory({ onInventoryAdded, onClose }: AddInventoryProps) {
     "& .MuiOutlinedInput-root fieldset": { borderColor: "black !important" },
     "& .MuiInputBase-input": {
       color: "black",
-      fontSize: { xs: ".7rem", sm: ".9rem", md: ".8rem" },
+      fontSize: { xs: ".7rem", sm: ".9rem", md: ".9rem" },
       fontFamily: "Poppins",
     },
   };
