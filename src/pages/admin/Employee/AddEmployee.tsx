@@ -229,7 +229,7 @@
             <TextField label="Phone Number" fullWidth value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} autoComplete="off" sx={inputStyles} />
           </Grid>
         
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={10}>
             <TextField label="Address" fullWidth value={address} onChange={(e) => setAddress(e.target.value)} autoComplete="off" sx={inputStyles} />
           </Grid>
         </Grid>

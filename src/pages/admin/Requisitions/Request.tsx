@@ -197,7 +197,7 @@ const fetchMasterList = async () => {
 
   return (
     <Box m="20px">
-      <Header title="Daily Spare Request" subtitle="Create Daily Requisitions" />
+      <Header title="Daily Request" subtitle="Create Daily Requisitions" />
 
       {/* Tabs */}
       <Tabs

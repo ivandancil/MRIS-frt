@@ -192,7 +192,7 @@ function SpareInventory() {
           "& .MuiTabs-indicator": { backgroundColor: "black" },
         }}
       >
-        <Tab label="Daily Purchases" />
+        <Tab label="Received & Purchase Items" />
         <Tab label="Master List" />
       </Tabs>
 
@@ -269,8 +269,9 @@ function SpareInventory() {
                 // { field: "category", headerName: "Category", flex: 1 },
                 { field: "model", headerName: "Model", flex: 1 },
                 { field: "qty", headerName: "Qty", flex: 0.5 },
-                { field: "unit", headerName: "Unit", flex: 1 },
+                { field: "unit", headerName: "Unit", flex: 0.5 },
                 { field: "supplier", headerName: "Supplier", flex: 1 },
+                  { field: "receipt_number", headerName: "Receipt", flex: 1 },
                {
                 field: "actions",
                 headerName: "Actions",

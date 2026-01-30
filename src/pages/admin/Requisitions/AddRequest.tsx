@@ -211,6 +211,7 @@ const addNewItem = () => {
                   <MenuItem value="BOX" >BOX</MenuItem>
                   <MenuItem value="SET" >SET</MenuItem>
                   <MenuItem value="ROLL" >ROLL</MenuItem>
+                  <MenuItem value="DRUM" >DRUM</MenuItem>
                 </TextField>
             </Grid>
 
@@ -238,7 +239,7 @@ const addNewItem = () => {
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={10}>
              <TextField
               label="Supplier"
               fullWidth

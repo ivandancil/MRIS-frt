@@ -60,6 +60,9 @@ function AddInventory({ onInventoryAdded, onClose }: AddInventoryProps) {
   const [unitCost, setUnitCost] = useState("");
   const [supplier, setSupplier] = useState("");
   const [lastPurchased, setLastPurchased] = useState("");
+  const [lastPurchasedTouched, setLastPurchasedTouched] = useState(false);
+  const [receipt_number, setReceiptNumber] = useState("");
+
   const [itemOptions, setItemOptions] = useState<any[]>([]);
 const [isExistingItem, setIsExistingItem] = useState(false);
 const [supplierOptions, setSupplierOptions] = useState<string[]>([]);
@@ -126,21 +129,34 @@ useEffect(() => {
   setSupplierOptions([...new Set(suppliers)]);
 
   // Check exact match (name + model + supplier)
-  const exactMatch = matchedItems.find(item =>
-    (model ? item.model?.toLowerCase() === model.toLowerCase() : true) &&
-    (supplier ? item.supplier?.toLowerCase() === supplier.toLowerCase() : true)
-  );
+const exactMatch = matchedItems.find(item => {
+  const itemModel = (item.model || "").toLowerCase();
+  const currentModel = (model || "").toLowerCase();
 
-  if (exactMatch) {
-    setItemCode(exactMatch.item_code);
-    setCategory(exactMatch.category);
-    setUnit(exactMatch.unit);
+  const itemSupplier = (item.supplier || "").toLowerCase();
+  const currentSupplier = (supplier || "").toLowerCase();
+
+  return (
+    itemModel === currentModel &&
+    itemSupplier === currentSupplier
+  );
+});
+
+if (exactMatch) {
+  setItemCode(exactMatch.item_code);
+  setCategory(exactMatch.category);
+  setUnit(exactMatch.unit);
+
+  if (!lastPurchasedTouched) {
     setLastPurchased(exactMatch.last_purchased || "");
-    setIsExistingItem(true);
-  } else {
-    setIsExistingItem(false);
-    setItemCode(generateItemCode());
   }
+
+  setIsExistingItem(true);
+} else {
+  setIsExistingItem(false);
+  setItemCode(generateItemCode());
+}
+
 }, [itemName, model, supplier, itemOptions]);
 
 
@@ -161,7 +177,7 @@ useEffect(() => {
     setCategory(matchedItem.category);
     setUnit(matchedItem.unit);
     setModel(matchedItem.model || "");
-    setLastPurchased(matchedItem.last_purchased || "");
+  
   }
 
   return () => clearTimeout(timer);
@@ -176,7 +192,7 @@ useEffect(() => {
     setUnitCost("");
     setSupplier("");
     setModel("");
-    setLastPurchased("");
+    setLastPurchasedTouched(false);
     setIsExistingItem(false); // reset existing flag
   }
 }, [itemName]);
@@ -207,6 +223,20 @@ useEffect(() => {
       try {
         const token = localStorage.getItem("token");
 
+           // ✅ Add console.log here to inspect the payload
+      console.log("Submitting inventory:", {
+        item_code: itemCode,
+        item_name: itemName,
+        category,
+        model: model || null,
+        qty: Number(qty),
+        unit,
+        unit_cost: Number(unitCost),
+        supplier: supplier || null,
+        last_purchased: lastPurchased || null,
+        receipt_number: receipt_number, // <-- check this value
+      });
+
         const response = await fetch("http://127.0.0.1:8000/api/inventories", {
           method: "POST",
           headers: {
@@ -223,6 +253,7 @@ useEffect(() => {
             unit_cost: Number(unitCost),
             supplier: supplier || null,
             last_purchased: lastPurchased || null,
+            receipt_number: receipt_number, 
           }),
         });
 
@@ -307,6 +338,17 @@ return (
             InputProps={{ readOnly: !isExistingItem }}
           />
         </Grid>
+
+<Grid item xs={12} md={6}>
+  <TextField
+    label="Receipt Number"
+    fullWidth
+    value={receipt_number}              // <-- bind state
+    onChange={(e) => setReceiptNumber(e.target.value)}  // <-- update state
+    autoComplete="off"
+    sx={inputStyles}
+  />
+</Grid>
 
         {/* Item Name */}
         <Grid item xs={12} md={12}>
@@ -446,17 +488,21 @@ return (
 
         {/* Last Purchased */}
         <Grid item xs={12} md={6}>
-          <TextField
-            label="Last Purchased"
-            type="date"
-            fullWidth
-            value={lastPurchased}
-            onChange={(e) => setLastPurchased(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-            error={!!fieldErrors.last_purchased}
-            helperText={fieldErrors.last_purchased}
-            sx={inputStyles}
-          />
+         <TextField
+  label="Last Purchased"
+  type="date"
+  fullWidth
+  value={lastPurchased}
+  onChange={(e) => {
+    setLastPurchased(e.target.value);
+    setLastPurchasedTouched(true); // ✅ LOCK AUTO-FILL
+  }}
+  InputLabelProps={{ shrink: true }}
+  error={!!fieldErrors.last_purchased}
+  helperText={fieldErrors.last_purchased}
+  sx={inputStyles}
+/>
+
         </Grid>
       </Grid>
     </Box>
